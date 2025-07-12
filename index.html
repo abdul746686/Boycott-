@@ -1,65 +1,39 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="hi">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Boycott Alert App</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f9f9f9;
-      margin: 0;
-      padding: 0;
-      text-align: center;
-    }
-    .container {
-      max-width: 500px;
-      margin: 50px auto;
-      padding: 30px;
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-    h1 {
-      color: #333;
-    }
-    p {
-      color: #666;
-      line-height: 1.6;
-    }
-    .download-btn {
-      display: inline-block;
-      margin-top: 20px;
-      padding: 12px 24px;
-      background-color: #4CAF50;
-      color: white;
-      font-size: 16px;
-      text-decoration: none;
-      border-radius: 5px;
-    }
-    .credit {
-      margin-top: 40px;
-      color: #aaa;
-      font-size: 14px;
-    }
-  </style>
+  <meta charset="UTF-8">
+  <title>Boycott Alert</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="assets/favicon.ico" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div class="container">
-    <h1>Boycott Alert App</h1>
-    <p>
-      This app listens through your microphone and instantly alerts you when it detects the name of any product from boycott-listed companies.
-    </p>
-    <p>
-      Features include:
-      <ul style="text-align:left; display:inline-block;">
-        <li>✓ Microphone Listening</li>
-        <li>✓ Instant Alarm</li>
-        <li>✓ Vibration & Pop-up Warning</li>
-        <li>✓ Offline Working</li>
-      </ul>
-    </p>
-    <a href="BoycottAlert_by_AbdulRahman.apk" class="download-btn" download>Download APK</a>
-    <div class="credit">Powered by Abdul Rahman</div>
-  </div>
+  <header>
+    <div class="top-bar">
+      <h1>बहिष्कार सूची</h1>
+      <p>ब्रांड नाम, उत्पाद नाम या बारकोड नंबर द्वारा बहिष्कृत उत्पादों को खोजें।</p>
+    </div>
+    <div class="search-container">
+      <input type="text" id="searchInput" placeholder="Search Brands...">
+      <span class="icon">🔍</span>
+    </div>
+  </header>
+
+  <main>
+    <div class="grid" id="brandGrid">
+      <!-- Cards injected via JS -->
+    </div>
+  </main>
+
+  <nav class="bottom-nav">
+    <a href="#">📃 सूची</a>
+    <a href="#">💰 समर्थन करें</a>
+    <a href="#" class="scan">📷 Scan</a>
+    <a href="#">ℹ️ हमारे बारे में</a>
+    <a href="#">🛒 स्टोर</a>
+  </nav>
+
+  <script src="app.js"></script>
 </body>
 </html>
