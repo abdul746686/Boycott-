@@ -1,67 +1,42 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>बहिष्कार सूची</title>
+    <title>Boycott Alert</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="top-bar">
-        <h1>बहिष्कार सूची</h1>
-        <p>ब्रांड नाम, उत्पाद या बारकोड नंबर से खोजें।</p>
+    <div class="container">
+        <header>
+            <h1>Boycott Alert</h1>
+        </header>
+        
+        <main>
+            <div class="status-box">
+                <p id="status">Status: Stopped</p>
+                <p id="permission">Microphone Permission: Not Granted</p>
+            </div>
+            
+            <div class="controls">
+                <button id="startBtn" class="btn">Start Listening</button>
+                <button id="stopBtn" class="btn" disabled>Stop Listening</button>
+                <button id="testBtn" class="btn test-btn">Test Alert</button>
+            </div>
+            
+            <div id="alertBox" class="alert-box hidden">
+                <h2>BOYCOTT ALERT!</h2>
+                <p id="detectedBrand"></p>
+                <button id="closeAlert" class="btn">Close</button>
+            </div>
+        </main>
+        
+        <footer>
+            <p>Powered by Abdul Rahman</p>
+        </footer>
     </div>
 
-    <div class="search-container">
-        <input type="text" class="search-box" placeholder="एक ब्रांड नाम लिखें">
-        <span class="search-icon">🔍</span>
-        <span class="barcode-icon">📷</span>
-    </div>
-
-    <div style="text-align: center; padding: 10px;">
-        <button class="voice-btn" id="voiceBtn">
-            <span>🎤</span> वॉयस सर्च
-        </button>
-    </div>
-
-    <div class="voice-status" id="voiceStatus"></div>
-
-    <div class="brand-grid" id="brandGrid">
-        <!-- Brand cards will be added here by JavaScript -->
-    </div>
-
-    <div class="bottom-nav">
-        <div class="nav-item">
-            <span class="nav-icon">☰</span>
-            <span>सूची</span>
-        </div>
-        <div class="nav-item">
-            <span class="nav-icon">🤝</span>
-            <span>समर्थन करें</span>
-        </div>
-        <div class="nav-item">
-            <div class="scan-button">📷</div>
-            <span>Scan</span>
-        </div>
-        <div class="nav-item">
-            <span class="nav-icon">ℹ️</span>
-            <span>हमारे बारे में</span>
-        </div>
-        <div class="nav-item">
-            <span class="nav-icon">🛒</span>
-            <span>स्टोर</span>
-        </div>
-    </div>
-
-    <div class="alert-overlay" id="alertOverlay">
-        <div class="alert-box">
-            <h3>✅ boycott product detected</h3>
-            <p>The product you mentioned is on the boycott list.</p>
-        </div>
-    </div>
-
-    <audio id="alertSound" src="https://assets.mixkit.co/sfx/preview/mixkit-alarm-digital-clock-beep-989.mp3"></audio>
-
+    <script src="keywords.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
