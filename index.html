@@ -3,149 +3,586 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JARVIS AI Assistant</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
+    <title>JarvisR - AI Assistant</title>
+    <style>
+        :root {
+            --primary: #00a8ff;
+            --secondary: #0077b6;
+            --dark: #0a192f;
+            --darker: #020c1b;
+            --light: #ccd6f6;
+            --accent: #64ffda;
+            --error: #ff5555;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--dark);
+            color: var(--light);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            padding: 1rem 2rem;
+            border-bottom: 1px solid rgba(100, 255, 218, 0.1);
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+            margin-right: 1rem;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+
+        .app-title {
+            font-size: 1.8rem;
+            font-weight: 500;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+            scroll-behavior: smooth;
+        }
+
+        .message {
+            margin-bottom: 1.5rem;
+            max-width: 80%;
+            padding: 0.8rem 1.2rem;
+            border-radius: 1rem;
+            position: relative;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .user-message {
+            background-color: var(--secondary);
+            margin-left: auto;
+            border-bottom-right-radius: 0.2rem;
+        }
+
+        .assistant-message {
+            background-color: rgba(0, 168, 255, 0.2);
+            border: 1px solid rgba(0, 168, 255, 0.3);
+            margin-right: auto;
+            border-bottom-left-radius: 0.2rem;
+        }
+
+        .message-time {
+            font-size: 0.7rem;
+            opacity: 0.7;
+            margin-top: 0.3rem;
+        }
+
+        .typing {
+            display: inline-block;
+        }
+
+        .typing-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--light);
+            margin-right: 4px;
+            animation: typingAnimation 1.4s infinite both;
+        }
+
+        .typing-dot:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typingAnimation {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-5px); }
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1.5rem;
+            position: relative;
+        }
+
+        .mic-btn {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 20px rgba(0, 168, 255, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .mic-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 25px rgba(0, 168, 255, 0.4);
+        }
+
+        .mic-btn:active {
+            transform: scale(0.98);
+        }
+
+        .mic-btn.listening {
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 168, 255, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(0, 168, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 168, 255, 0); }
+        }
+
+        .mic-icon {
+            width: 30px;
+            height: 30px;
+            fill: white;
+        }
+
+        .status {
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: var(--accent);
+            height: 20px;
+        }
+
+        .transcript {
+            position: absolute;
+            bottom: 100%;
+            margin-bottom: 1rem;
+            background-color: var(--darker);
+            padding: 0.5rem 1rem;
+            border-radius: 1rem;
+            max-width: 80%;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .transcript.show {
+            opacity: 1;
+        }
+
+        .action-buttons {
+            position: absolute;
+            right: 2rem;
+            bottom: 2rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .action-btn {
+            background-color: rgba(100, 255, 218, 0.1);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background-color: rgba(100, 255, 218, 0.2);
+        }
+
+        footer {
+            text-align: center;
+            padding: 1rem;
+            font-size: 0.8rem;
+            color: rgba(204, 214, 246, 0.6);
+            border-top: 1px solid rgba(100, 255, 218, 0.1);
+        }
+
+        .splash {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--darker);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            transition: opacity 1s ease;
+        }
+
+        .splash-logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .splash-text {
+            font-size: 1.2rem;
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+
+        .progress-bar {
+            width: 200px;
+            height: 4px;
+            background-color: rgba(100, 255, 218, 0.2);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background-color: var(--accent);
+            width: 0;
+            transition: width 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            .message {
+                max-width: 90%;
+            }
+            
+            .logo {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
+            
+            .app-title {
+                font-size: 1.4rem;
+            }
+            
+            .mic-btn {
+                width: 60px;
+                height: 60px;
+            }
+            
+            .mic-icon {
+                width: 25px;
+                height: 25px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>JARVIS AI</h1>
-            <nav>
-                <button class="nav-btn" id="helpBtn"><i class="fas fa-question-circle"></i></button>
-                <button class="nav-btn" id="settingsBtn"><i class="fas fa-cog"></i></button>
-            </nav>
-        </header>
+    <div class="splash">
+        <div class="splash-logo">JR</div>
+        <div class="splash-text">Initializing JarvisR System...</div>
+        <div class="progress-bar">
+            <div class="progress"></div>
+        </div>
+    </div>
 
-        <div class="chat-container">
-            <div class="chat-messages" id="chatMessages">
-                <!-- Messages will appear here -->
-            </div>
+    <header>
+        <div class="logo">JR</div>
+        <h1 class="app-title">JarvisR</h1>
+    </header>
 
-            <div class="input-container">
-                <input type="text" class="input-field" id="textInput" placeholder="Type your message or click the mic...">
-                <button class="mic-btn" id="micBtn">
-                    <div class="waveform" id="waveform">
-                        <div class="waveform-bar"></div>
-                        <div class="waveform-bar"></div>
-                        <div class="waveform-bar"></div>
-                        <div class="waveform-bar"></div>
-                        <div class="waveform-bar"></div>
+    <div class="chat-container" id="chatContainer">
+        <!-- Messages will appear here -->
+    </div>
+
+    <div class="controls">
+        <div class="transcript" id="transcript"></div>
+        <button class="mic-btn" id="micBtn">
+            <svg class="mic-icon" viewBox="0 0 24 24">
+                <path d="M12,2A3,3 0 0,1 15,5V11A3,3 0 0,1 12,14A3,3 0 0,1 9,11V5A3,3 0 0,1 12,2M19,11C19,14.53 16.39,17.44 13,17.93V21H11V17.93C7.61,17.44 5,14.53 5,11H7A5,5 0 0,0 12,16A5,5 0 0,0 17,11H19Z" />
+            </svg>
+        </button>
+        <div class="status" id="status">Ready</div>
+    </div>
+
+    <div class="action-buttons">
+        <button class="action-btn" id="clearBtn">Clear Chat</button>
+    </div>
+
+    <footer>
+        Powered by Abdul Rahman
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Simulate initialization
+            const splash = document.querySelector('.splash');
+            const progress = document.querySelector('.progress');
+            
+            let progressValue = 0;
+            const interval = setInterval(() => {
+                progressValue += 10;
+                progress.style.width = `${progressValue}%`;
+                
+                if (progressValue >= 100) {
+                    clearInterval(interval);
+                    splash.style.opacity = '0';
+                    setTimeout(() => {
+                        splash.style.display = 'none';
+                        greetUser();
+                    }, 1000);
+                }
+            }, 300);
+
+            // DOM Elements
+            const micBtn = document.getElementById('micBtn');
+            const status = document.getElementById('status');
+            const transcript = document.getElementById('transcript');
+            const chatContainer = document.getElementById('chatContainer');
+            const clearBtn = document.getElementById('clearBtn');
+
+            // Speech Recognition
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = true;
+            recognition.lang = 'en-US';
+
+            // Speech Synthesis
+            const synth = window.speechSynthesis;
+            let voices = [];
+            let assistantVoice = null;
+
+            // Load voices
+            function loadVoices() {
+                voices = synth.getVoices();
+                assistantVoice = voices.find(voice => 
+                    voice.name.includes('Microsoft Zira') || 
+                    voice.name.includes('Google US English') ||
+                    voice.name.includes('Samantha')
+                );
+                
+                if (!assistantVoice) {
+                    assistantVoice = voices.find(voice => voice.lang.includes('en'));
+                }
+            }
+
+            if (synth.onvoiceschanged !== undefined) {
+                synth.onvoiceschanged = loadVoices;
+            }
+            loadVoices();
+
+            // Add message to chat
+            function addMessage(text, isUser = false) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${isUser ? 'user-message' : 'assistant-message'}`;
+                
+                const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                
+                messageDiv.innerHTML = `
+                    <div>${text}</div>
+                    <div class="message-time">${time}</div>
+                `;
+                
+                chatContainer.appendChild(messageDiv);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+
+            // Speak text
+            function speak(text) {
+                if (synth.speaking) {
+                    synth.cancel();
+                }
+                
+                const utterance = new SpeechSynthesisUtterance(text);
+                if (assistantVoice) {
+                    utterance.voice = assistantVoice;
+                    utterance.rate = 0.9;
+                    utterance.pitch = 1.1;
+                }
+                
+                synth.speak(utterance);
+            }
+
+            // Greet user
+            function greetUser() {
+                const greeting = "Hello, I am JarvisR. How can I assist you today?";
+                addMessage(greeting);
+                speak(greeting);
+            }
+
+            // Process user command
+            function processCommand(command) {
+                command = command.toLowerCase().trim();
+                let response = "";
+                
+                // Check for specific commands
+                if (command.includes('time')) {
+                    const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    response = `The current time is ${time}`;
+                } 
+                else if (command.includes('date')) {
+                    const date = new Date().toLocaleDateString([], { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                    response = `Today is ${date}`;
+                }
+                else if (command.includes('weather')) {
+                    response = "I can't access real-time weather data right now, but you can say 'search for weather in [location]' and I'll find it for you.";
+                }
+                else if (command.includes('news')) {
+                    response = "I can fetch the latest news for you. Say 'search for latest news' and I'll find it for you.";
+                }
+                else if (command.includes('search for') || command.includes('look up')) {
+                    const query = command.replace('search for', '').replace('look up', '').trim();
+                    if (query) {
+                        response = `Searching for ${query}...`;
+                        setTimeout(() => {
+                            window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, '_blank');
+                        }, 1000);
+                    } else {
+                        response = "What would you like me to search for?";
+                    }
+                }
+                else if (command.includes('thank')) {
+                    response = "You're welcome! Is there anything else I can help you with?";
+                }
+                else if (command.includes('hello') || command.includes('hi')) {
+                    response = "Hello there! How can I assist you today?";
+                }
+                else if (command.includes('who are you')) {
+                    response = "I am JarvisR, your personal AI assistant. I'm here to help you with information, tasks, and more.";
+                }
+                else if (command.includes('clear chat')) {
+                    clearChat();
+                    return;
+                }
+                else {
+                    // Default response for other queries
+                    const randomResponses = [
+                        "I'm not sure I understand. Could you rephrase that?",
+                        "Interesting question. Let me think about that...",
+                        "I'm still learning. Could you ask me something else?",
+                        "I don't have that information right now, but I can search for it if you'd like."
+                    ];
+                    response = randomResponses[Math.floor(Math.random() * randomResponses.length)];
+                }
+                
+                // Show typing indicator
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'message assistant-message typing';
+                typingDiv.innerHTML = `
+                    <div class="typing">
+                        <span class="typing-dot"></span>
+                        <span class="typing-dot"></span>
+                        <span class="typing-dot"></span>
                     </div>
-                    <i class="fas fa-microphone"></i>
-                </button>
-            </div>
-        </div>
-    </div>
+                    <div class="message-time">${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                `;
+                chatContainer.appendChild(typingDiv);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+                
+                // Simulate AI thinking time
+                setTimeout(() => {
+                    chatContainer.removeChild(typingDiv);
+                    addMessage(response);
+                    speak(response);
+                }, 1500 + Math.random() * 1000);
+            }
 
-    <div class="assistant-icon">
-        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20Z" fill="var(--primary)"/>
-            <path d="M12 6C9.79 6 8 7.79 8 10C8 12.21 9.79 14 12 14C14.21 14 16 12.21 16 10C16 7.79 14.21 6 12 6ZM12 12C10.9 12 10 11.1 10 10C10 8.9 10.9 8 12 8C13.1 8 14 8.9 14 10C14 11.1 13.1 12 12 12Z" fill="var(--primary)"/>
-            <path d="M6.5 17.5C7.33 15.17 9.53 13.5 12 13.5C14.47 13.5 16.67 15.17 17.5 17.5H6.5Z" fill="var(--primary)"/>
-        </svg>
-    </div>
+            // Clear chat
+            function clearChat() {
+                chatContainer.innerHTML = '';
+                greetUser();
+            }
 
-    <!-- Settings Panel -->
-    <div class="panel" id="settingsPanel">
-        <div class="panel-header">
-            <h2 class="panel-title"><i class="fas fa-cog"></i> Settings</h2>
-            <button class="close-panel" id="closeSettings">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <div class="panel-content">
-            <div class="form-group">
-                <label for="assistantName" class="form-label">Assistant Name</label>
-                <input type="text" id="assistantName" class="form-input" placeholder="e.g., Jarvis">
-            </div>
-            <div class="form-group">
-                <label for="userName" class="form-label">Your Name</label>
-                <input type="text" id="userName" class="form-input" placeholder="e.g., Tony">
-            </div>
-            <div class="form-group">
-                <label for="wakeWord" class="form-label">Wake Word</label>
-                <input type="text" id="wakeWord" class="form-input" placeholder="e.g., Jarvis">
-            </div>
-            <div class="form-group">
-                <label for="voicePin" class="form-label">Voice PIN (4 digits)</label>
-                <input type="text" id="voicePin" class="form-input" placeholder="1234" maxlength="4">
-            </div>
-            <div class="form-group">
-                <label for="languageSelect" class="form-label">Language</label>
-                <select id="languageSelect" class="form-input">
-                    <option value="en-US">English</option>
-                    <option value="hi-IN">Hindi</option>
-                    <option value="ur-PK">Urdu</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Theme</label>
-                <div class="theme-switcher">
-                    <button class="theme-btn light" data-theme="light"><i class="fas fa-sun"></i> Light</button>
-                    <button class="theme-btn dark active" data-theme="dark"><i class="fas fa-moon"></i> Dark</button>
-                </div>
-            </div>
-            <button class="save-btn" id="saveSettings">Save Settings</button>
-        </div>
-    </div>
+            // Event Listeners
+            micBtn.addEventListener('click', () => {
+                if (micBtn.classList.contains('listening')) {
+                    recognition.stop();
+                    micBtn.classList.remove('listening');
+                    status.textContent = 'Ready';
+                    transcript.classList.remove('show');
+                } else {
+                    recognition.start();
+                    micBtn.classList.add('listening');
+                    status.textContent = 'Listening...';
+                }
+            });
 
-    <!-- Help Panel -->
-    <div class="panel" id="helpPanel">
-        <div class="panel-header">
-            <h2 class="panel-title"><i class="fas fa-question-circle"></i> Help & FAQ</h2>
-            <button class="close-panel" id="closeHelp">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <div class="panel-content">
-            <div class="faq-item">
-                <h3>How do I use the voice assistant?</h3>
-                <p>Simply say the wake word (default is "Jarvis") followed by your command. You can also click the microphone button to activate listening manually.</p>
-            </div>
-            <div class="faq-item">
-                <h3>What commands are supported?</h3>
-                <ul>
-                    <li>"What is the time?" - Get current time</li>
-                    <li>"Search [query] on Google" - Perform a web search</li>
-                    <li>"Open YouTube" - Open YouTube in new tab</li>
-                    <li>"Tell me a joke" - Hear a random joke</li>
-                    <li>"Torch on karo" - Simulate flashlight (visual only)</li>
-                    <li>"Weather in [city]" - Get weather information</li>
-                </ul>
-            </div>
-            <div class="faq-item">
-                <h3>How do I change settings?</h3>
-                <p>Click the settings icon in the top right corner to customize the assistant name, wake word, language, and more.</p>
-            </div>
-            <div class="legal-links">
-                <a href="#" id="privacyLink">Privacy Policy</a>
-                <a href="#" id="termsLink">Terms & Conditions</a>
-                <a href="#" id="contactLink">Contact Us</a>
-            </div>
-        </div>
-    </div>
+            recognition.onstart = () => {
+                transcript.textContent = '';
+                transcript.classList.add('show');
+            };
 
-    <!-- Legal Pages (shown in same panel) -->
-    <div class="panel" id="legalPanel">
-        <div class="panel-header">
-            <h2 class="panel-title" id="legalTitle"></h2>
-            <button class="close-panel" id="closeLegal">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <div class="panel-content" id="legalContent">
-            <!-- Content loaded dynamically -->
-        </div>
-    </div>
+            recognition.onresult = (event) => {
+                const transcriptText = event.results[0][0].transcript;
+                transcript.textContent = transcriptText;
+                
+                if (event.results[0].isFinal) {
+                    addMessage(transcriptText, true);
+                    processCommand(transcriptText);
+                    transcript.classList.remove('show');
+                }
+            };
 
-    <div class="overlay" id="overlay"></div>
+            recognition.onerror = (event) => {
+                console.error('Speech recognition error', event.error);
+                status.textContent = `Error: ${event.error}`;
+                micBtn.classList.remove('listening');
+                transcript.classList.remove('show');
+                
+                setTimeout(() => {
+                    status.textContent = 'Ready';
+                }, 2000);
+            };
 
-    <div class="notification" id="notification">
-        <div class="notification-message" id="notificationMessage"></div>
-    </div>
+            recognition.onend = () => {
+                if (micBtn.classList.contains('listening')) {
+                    micBtn.classList.remove('listening');
+                    status.textContent = 'Ready';
+                }
+            };
 
-    <script src="script.js"></script>
+            clearBtn.addEventListener('click', clearChat);
+        });
+    </script>
 </body>
 </html>
