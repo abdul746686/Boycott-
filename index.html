@@ -3,79 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JARVIS AI Assistant</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>Jarvis AI Assistant</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="assets/icons/mic.svg" type="image/svg+xml">
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1>JARVIS AI</h1>
-            <button class="settings-btn" id="settingsBtn">
-                <i class="fas fa-cog"></i> Settings
+        <header class="header">
+            <h1>Jarvis AI</h1>
+            <button id="settings-toggle" class="icon-button">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M3 17V19C3 19.5523 3.44772 20 4 20H6V18.5C6 17.6716 5.32843 17 4.5 17H3ZM4 15V16H4.5C5.32843 16 6 15.3284 6 14.5V13H4C3.44772 13 3 13.4477 3 14V15ZM6 11V12H4C3.44772 12 3 12.4477 3 13H4.5C5.32843 13 6 12.3284 6 11.5V11H6V11ZM3 9V10H4.5C5.32843 10 6 9.32843 6 8.5V7H4C3.44772 7 3 7.44772 3 8V9ZM10 17H12V19H10V17ZM10 13H12V15H10V13ZM10 9H12V11H10V9ZM10 5H12V7H10V5ZM14 17H16V19H14V17ZM14 13H16V15H14V13ZM14 9H16V11H14V9ZM14 5H16V7H14V5ZM18 17H20V19H18V17ZM18 13H20V15H18V13ZM18 9H20V11H18V9ZM18 5H20V7H18V5ZM18 3H20C20.5523 3 21 3.44772 21 4V6H19.5C18.6716 6 18 5.32843 18 4.5V3ZM19.5 8C19.5 7.17157 18.8284 6.5 18 6.5H17V8H18C18.5523 8 19 8.44772 19 9V10H19.5C20.3284 10 21 9.32843 21 8.5V8ZM18 12H19.5C20.3284 12 21 11.3284 21 10.5V10H19C18.4477 10 18 10.4477 18 11V12ZM19 14H19.5C20.3284 14 21 13.3284 21 12.5V12H18V13C18 13.5523 18.4477 14 19 14Z"/></svg>
             </button>
         </header>
 
-        <div class="chat-container">
-            <div class="chat-messages" id="chatMessages">
-                <!-- Messages will appear here -->
+        <main class="main-content">
+            <div class="assistant-display">
+                <div class="assistant-avatar">
+                    <img src="assets/icons/mic.svg" alt="Assistant Microphone" id="mic-icon">
+                </div>
+                <div id="subtitle-display" class="subtitle">Waiting for wake word...</div>
             </div>
 
-            <div class="input-container">
-                <input type="text" class="input-field" id="textInput" placeholder="Type your message or click the mic...">
-                <button class="mic-btn" id="micBtn">
-                    <div class="waveform" id="waveform">
-                        <div class="waveform-bar"></div>
-                        <div class="waveform-bar"></div>
-                        <div class="waveform-bar"></div>
-                        <div class="waveform-bar"></div>
-                        <div class="waveform-bar"></div>
-                    </div>
-                    <i class="fas fa-microphone"></i>
+            <div id="chat-history" class="chat-history">
+                </div>
+
+            <div class="controls">
+                <button id="manual-mic-toggle" class="action-button">
+                    <span id="mic-button-text">Start Listening</span>
                 </button>
             </div>
-        </div>
-    </div>
+        </main>
 
-    <div class="assistant-icon">
-        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20Z" fill="var(--primary)"/>
-            <path d="M12 6C9.79 6 8 7.79 8 10C8 12.21 9.79 14 12 14C14.21 14 16 12.21 16 10C16 7.79 14.21 6 12 6ZM12 12C10.9 12 10 11.1 10 10C10 8.9 10.9 8 12 8C13.1 8 14 8.9 14 10C14 11.1 13.1 12 12 12Z" fill="var(--primary)"/>
-            <path d="M6.5 17.5C7.33 15.17 9.53 13.5 12 13.5C14.47 13.5 16.67 15.17 17.5 17.5H6.5Z" fill="var(--primary)"/>
-        </svg>
-    </div>
-
-    <div class="settings-panel" id="settingsPanel">
-        <div class="settings-header">
-            <h2 class="settings-title">Settings</h2>
-            <button class="close-settings" id="closeSettings">
-                <i class="fas fa-times"></i>
+        <aside id="settings-sidebar" class="settings-sidebar">
+            <button id="close-sidebar" class="icon-button close-button">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 10.586L16.293 6.293A1 1 0 0117.707 7.707L13.414 12l4.293 4.293a1 1 0 01-1.414 1.414L12 13.414l-4.293 4.293a1 1 0 01-1.414-1.414L10.586 12 6.293 7.707A1 1 0 017.707 6.293L12 10.586z"/></svg>
             </button>
-        </div>
-        <div class="form-group">
-            <label for="assistantName" class="form-label">Assistant Name</label>
-            <input type="text" id="assistantName" class="form-input" placeholder="e.g., Jarvis">
-        </div>
-        <div class="form-group">
-            <label for="userName" class="form-label">Your Name</label>
-            <input type="text" id="userName" class="form-input" placeholder="e.g., Tony">
-        </div>
-        <div class="form-group">
-            <label for="wakeWord" class="form-label">Wake Word</label>
-            <input type="text" id="wakeWord" class="form-input" placeholder="e.g., Jarvis">
-        </div>
-        <div class="form-group">
-            <label for="voicePin" class="form-label">Voice PIN (4 digits)</label>
-            <input type="text" id="voicePin" class="form-input" placeholder="1234" maxlength="4">
-        </div>
-        <button class="save-btn" id="saveSettings">Save Settings</button>
-    </div>
-
-    <div class="overlay" id="overlay"></div>
-
-    <div class="notification" id="notification">
-        <div class="notification-message" id="notificationMessage"></div>
+            <h2>Settings</h2>
+            <div class="settings-section">
+                <h3>Theme</h3>
+                <label class="switch">
+                    <input type="checkbox" id="theme-toggle">
+                    <span class="slider round"></span>
+                </label>
+                <span id="theme-name">Dark Mode</span>
+            </div>
+            <div class="settings-section">
+                <h3>Language</h3>
+                <select id="language-select">
+                    <option value="en-US">English</option>
+                    <option value="hi-IN">Hindi</option>
+                    <option value="ur-PK">Urdu</option>
+                </select>
+            </div>
+            <div class="settings-section">
+                <h3>Assistant Name</h3>
+                <input type="text" id="assistant-name-input" placeholder="e.g., Jarvis">
+            </div>
+            <div class="settings-section">
+                <h3>Wake Word(s)</h3>
+                <input type="text" id="wake-word-input" placeholder="e.g., Jarvis, Suno">
+                <small>Separate multiple wake words with commas.</small>
+            </div>
+            <div class="settings-section">
+                <h3>Voice PIN</h3>
+                <input type="text" id="voice-pin-input" placeholder="e.g., 7864">
+                <small>PIN for sensitive commands.</small>
+            </div>
+            <div class="settings-section legal-links">
+                <h3>Information</h3>
+                <a href="pages/about.html" target="_blank">About Us</a>
+                <a href="pages/contact.html" target="_blank">Contact Us</a>
+                <a href="pages/privacy.html" target="_blank">Privacy Policy</a>
+                <a href="pages/terms.html" target="_blank">Terms & Conditions</a>
+                <a href="pages/help.html" target="_blank">Help / FAQ</a>
+            </div>
+        </aside>
     </div>
 
     <script src="script.js"></script>
