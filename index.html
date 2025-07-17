@@ -3,60 +3,799 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jarvis AI Assistant</title>
-    <link rel="stylesheet" href="style.css">
+    <title>JARVIS AI Assistant</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #08fdd8;
+            --secondary: #ff4d5a;
+            --bg: #1d1d1d;
+            --bg-light: #2a2a2a;
+            --text: #f5f5f5;
+            --glass: rgba(255, 255, 255, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 30% 30%, rgba(8, 253, 216, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 70%, rgba(255, 77, 90, 0.1) 0%, transparent 50%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--primary);
+            font-size: 2rem;
+            text-shadow: 0 0 10px rgba(8, 253, 216, 0.5);
+        }
+
+        .settings-btn {
+            background: var(--glass);
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .settings-btn:hover {
+            background: rgba(8, 253, 216, 0.2);
+            box-shadow: 0 0 10px rgba(8, 253, 216, 0.3);
+        }
+
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 1rem;
+            padding-right: 0.5rem;
+        }
+
+        .message {
+            margin-bottom: 1rem;
+            display: flex;
+            flex-direction: column;
+            max-width: 80%;
+        }
+
+        .message-user {
+            align-self: flex-end;
+            align-items: flex-end;
+        }
+
+        .message-assistant {
+            align-self: flex-start;
+            align-items: flex-start;
+        }
+
+        .message-sender {
+            font-size: 0.8rem;
+            margin-bottom: 0.3rem;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .message-user .message-sender {
+            color: var(--secondary);
+        }
+
+        .message-content {
+            padding: 0.8rem 1.2rem;
+            border-radius: 15px;
+            background: var(--bg-light);
+            position: relative;
+            word-break: break-word;
+        }
+
+        .message-user .message-content {
+            background: linear-gradient(135deg, rgba(255, 77, 90, 0.2), rgba(255, 77, 90, 0.1));
+            border-bottom-right-radius: 5px;
+        }
+
+        .message-assistant .message-content {
+            background: linear-gradient(135deg, rgba(8, 253, 216, 0.2), rgba(8, 253, 216, 0.1));
+            border-bottom-left-radius: 5px;
+        }
+
+        .input-container {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: auto;
+        }
+
+        .input-field {
+            flex: 1;
+            padding: 0.8rem 1.2rem;
+            border-radius: 25px;
+            border: none;
+            background: var(--bg-light);
+            color: var(--text);
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .mic-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--primary);
+            border: none;
+            color: var(--bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .mic-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(8, 253, 216, 0.5);
+        }
+
+        .mic-btn.listening {
+            animation: pulse 1.5s infinite;
+        }
+
+        .mic-btn i {
+            font-size: 1.2rem;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(8, 253, 216, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(8, 253, 216, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(8, 253, 216, 0);
+            }
+        }
+
+        .waveform {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            height: 30px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .waveform.active {
+            opacity: 1;
+        }
+
+        .waveform-bar {
+            width: 3px;
+            height: 5px;
+            background-color: var(--bg);
+            border-radius: 3px;
+            animation: waveform 1.5s ease-in-out infinite;
+        }
+
+        .waveform-bar:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+        .waveform-bar:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        .waveform-bar:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+        .waveform-bar:nth-child(4) {
+            animation-delay: 0.4s;
+        }
+        .waveform-bar:nth-child(5) {
+            animation-delay: 0.5s;
+        }
+
+        @keyframes waveform {
+            0%, 100% {
+                height: 5px;
+            }
+            50% {
+                height: 20px;
+            }
+        }
+
+        .settings-panel {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 350px;
+            height: 100vh;
+            background: var(--bg-light);
+            box-shadow: -5px 0 20px rgba(0, 0, 0, 0.3);
+            padding: 2rem;
+            transition: right 0.3s ease;
+            z-index: 100;
+        }
+
+        .settings-panel.open {
+            right: 0;
+        }
+
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .settings-title {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+
+        .close-settings {
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.8rem;
+            border-radius: 5px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .save-btn {
+            background: var(--primary);
+            color: var(--bg);
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 5px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .save-btn:hover {
+            background: #07e0c0;
+            box-shadow: 0 0 15px rgba(8, 253, 216, 0.3);
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            z-index: 99;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .notification {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--bg-light);
+            padding: 1rem 1.5rem;
+            border-radius: 5px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            border-left: 4px solid var(--secondary);
+        }
+
+        .notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .notification-message {
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .settings-panel {
+                width: 85%;
+            }
+
+            .message {
+                max-width: 90%;
+            }
+        }
+
+        /* Assistant icon in center when no messages */
+        .assistant-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0.1;
+            z-index: -1;
+        }
+
+        .assistant-icon svg {
+            width: 200px;
+            height: 200px;
+        }
+
+        /* Loading animation */
+        .loading {
+            display: inline-flex;
+            gap: 5px;
+        }
+
+        .loading-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--primary);
+            border-radius: 50%;
+            animation: loading 1.4s infinite ease-in-out;
+        }
+
+        .loading-dot:nth-child(1) {
+            animation-delay: -0.32s;
+        }
+        .loading-dot:nth-child(2) {
+            animation-delay: -0.16s;
+        }
+
+        @keyframes loading {
+            0%, 80%, 100% { 
+                transform: scale(0);
+            }  
+            40% { 
+                transform: scale(1);
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
     <div class="container">
-        <header class="header">
-            <h1>Jarvis AI</h1>
+        <header>
+            <h1>JARVIS AI</h1>
+            <button class="settings-btn" id="settingsBtn">
+                <i class="fas fa-cog"></i> Settings
+            </button>
         </header>
 
-        <main class="main-content">
-            <div class="assistant-display">
-                <div class="assistant-icon"></div>
-                <div class="waveform"></div>
+        <div class="chat-container">
+            <div class="chat-messages" id="chatMessages">
+                <!-- Messages will appear here -->
             </div>
 
-            <div class="chat-display" id="chat-display">
-                <div class="message assistant-message">
-                    <p>Hello! I'm your personal AI assistant. Say "Jarvis" to wake me up.</p>
-                </div>
-            </div>
-
-            <div class="input-area">
-                <button id="mic-toggle-btn" class="mic-button">
-                    <img src="https://img.icons8.com/ios-filled/50/ffffff/microphone.png" alt="Mic Icon">
+            <div class="input-container">
+                <input type="text" class="input-field" id="textInput" placeholder="Type your message or click the mic...">
+                <button class="mic-btn" id="micBtn">
+                    <div class="waveform" id="waveform">
+                        <div class="waveform-bar"></div>
+                        <div class="waveform-bar"></div>
+                        <div class="waveform-bar"></div>
+                        <div class="waveform-bar"></div>
+                        <div class="waveform-bar"></div>
+                    </div>
+                    <i class="fas fa-microphone"></i>
                 </button>
-                <input type="text" id="text-input" placeholder="Type a command or speak...">
-                <button id="send-button" class="send-button">Send</button>
             </div>
-        </main>
-
-        <div class="settings-panel" id="settings-panel">
-            <h2>Settings</h2>
-            <div class="setting-item">
-                <label for="assistant-name">Assistant Name:</label>
-                <input type="text" id="assistant-name" value="Jarvis">
-            </div>
-            <div class="setting-item">
-                <label for="wake-word">Wake Word:</label>
-                <input type="text" id="wake-word" value="Jarvis">
-            </div>
-            <div class="setting-item">
-                <label for="voice-pin">Voice PIN (Optional):</label>
-                <input type="password" id="voice-pin" placeholder="Set your PIN">
-            </div>
-            <button id="save-settings-btn">Save Settings</button>
-            <button class="close-settings" id="close-settings-btn">&times;</button>
         </div>
-
-        <button class="settings-opener" id="open-settings-btn">⚙️</button>
-
-        <div class="notification-area" id="notification-area"></div>
     </div>
 
-    <script src="script.js"></script>
+    <div class="assistant-icon">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20Z" fill="var(--primary)"/>
+            <path d="M12 6C9.79 6 8 7.79 8 10C8 12.21 9.79 14 12 14C14.21 14 16 12.21 16 10C16 7.79 14.21 6 12 6ZM12 12C10.9 12 10 11.1 10 10C10 8.9 10.9 8 12 8C13.1 8 14 8.9 14 10C14 11.1 13.1 12 12 12Z" fill="var(--primary)"/>
+            <path d="M6.5 17.5C7.33 15.17 9.53 13.5 12 13.5C14.47 13.5 16.67 15.17 17.5 17.5H6.5Z" fill="var(--primary)"/>
+        </svg>
+    </div>
+
+    <div class="settings-panel" id="settingsPanel">
+        <div class="settings-header">
+            <h2 class="settings-title">Settings</h2>
+            <button class="close-settings" id="closeSettings">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="form-group">
+            <label for="assistantName" class="form-label">Assistant Name</label>
+            <input type="text" id="assistantName" class="form-input" placeholder="e.g., Jarvis">
+        </div>
+        <div class="form-group">
+            <label for="userName" class="form-label">Your Name</label>
+            <input type="text" id="userName" class="form-input" placeholder="e.g., Tony">
+        </div>
+        <div class="form-group">
+            <label for="wakeWord" class="form-label">Wake Word</label>
+            <input type="text" id="wakeWord" class="form-input" placeholder="e.g., Jarvis">
+        </div>
+        <div class="form-group">
+            <label for="voicePin" class="form-label">Voice PIN (4 digits)</label>
+            <input type="text" id="voicePin" class="form-input" placeholder="1234" maxlength="4">
+        </div>
+        <button class="save-btn" id="saveSettings">Save Settings</button>
+    </div>
+
+    <div class="overlay" id="overlay"></div>
+
+    <div class="notification" id="notification">
+        <div class="notification-message" id="notificationMessage"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const micBtn = document.getElementById('micBtn');
+            const textInput = document.getElementById('textInput');
+            const chatMessages = document.getElementById('chatMessages');
+            const settingsBtn = document.getElementById('settingsBtn');
+            const settingsPanel = document.getElementById('settingsPanel');
+            const closeSettings = document.getElementById('closeSettings');
+            const overlay = document.getElementById('overlay');
+            const saveSettings = document.getElementById('saveSettings');
+            const notification = document.getElementById('notification');
+            const notificationMessage = document.getElementById('notificationMessage');
+            const waveform = document.getElementById('waveform');
+
+            // Speech Recognition
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const recognition = new SpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.lang = 'en-US';
+
+            // Speech Synthesis
+            const synth = window.speechSynthesis;
+
+            // App State
+            let isListening = false;
+            let waitingForWakeWord = true;
+            let waitingForPin = false;
+            let currentPinAttempt = '';
+            let assistantName = 'Jarvis';
+            let userName = 'Sir';
+            let wakeWord = 'jarvis';
+            let voicePin = '1234';
+
+            // Load settings from localStorage
+            loadSettings();
+
+            // Event Listeners
+            micBtn.addEventListener('click', toggleListening);
+            textInput.addEventListener('keypress', handleTextInput);
+            settingsBtn.addEventListener('click', openSettings);
+            closeSettings.addEventListener('click', closeSettingsPanel);
+            overlay.addEventListener('click', closeSettingsPanel);
+            saveSettings.addEventListener('click', saveSettingsHandler);
+
+            // Initialize with welcome message if no messages
+            if (chatMessages.children.length === 0) {
+                setTimeout(() => {
+                    addMessage('assistant', `${assistantName}`, `Hello ${userName}, I'm ${assistantName}. Say "${wakeWord}" to wake me up or click the mic.`);
+                    speak(`Hello ${userName}, I'm ${assistantName}. Say "${wakeWord}" to wake me up or click the mic.`);
+                }, 1000);
+            }
+
+            // Functions
+            function toggleListening() {
+                if (isListening) {
+                    stopListening();
+                } else {
+                    startListening();
+                }
+            }
+
+            function startListening() {
+                try {
+                    recognition.start();
+                    micBtn.classList.add('listening');
+                    waveform.classList.add('active');
+                    isListening = true;
+                    showNotification('Listening...');
+                } catch (e) {
+                    showNotification('Error starting speech recognition');
+                    console.error('Speech recognition error:', e);
+                }
+            }
+
+            function stopListening() {
+                recognition.stop();
+                micBtn.classList.remove('listening');
+                waveform.classList.remove('active');
+                isListening = false;
+                showNotification('Microphone off');
+            }
+
+            recognition.onresult = function(event) {
+                const transcript = Array.from(event.results)
+                    .map(result => result[0])
+                    .map(result => result.transcript)
+                    .join('');
+
+                // Check for final result
+                if (event.results[0].isFinal) {
+                    if (waitingForWakeWord) {
+                        if (transcript.toLowerCase().includes(wakeWord.toLowerCase())) {
+                            waitingForWakeWord = false;
+                            addMessage('user', userName, transcript);
+                            const response = `Yes ${userName}, I'm listening.`;
+                            addMessage('assistant', assistantName, response);
+                            speak(response);
+                        }
+                    } else if (waitingForPin) {
+                        currentPinAttempt = transcript.replace(/\D/g, ''); // Extract numbers only
+                        addMessage('user', userName, transcript);
+                        
+                        if (currentPinAttempt === voicePin) {
+                            waitingForPin = false;
+                            const response = `PIN accepted. How can I help you, ${userName}?`;
+                            addMessage('assistant', assistantName, response);
+                            speak(response);
+                        } else {
+                            const response = `Incorrect PIN. Please try again or say "${wakeWord}" to cancel.`;
+                            addMessage('assistant', assistantName, response);
+                            speak(response);
+                        }
+                    } else {
+                        addMessage('user', userName, transcript);
+                        processCommand(transcript);
+                    }
+                }
+            };
+
+            recognition.onerror = function(event) {
+                console.error('Speech recognition error', event.error);
+                stopListening();
+                showNotification('Error: ' + event.error);
+            };
+
+            recognition.onend = function() {
+                if (isListening) {
+                    // Restart recognition if it ended unexpectedly
+                    setTimeout(() => {
+                        if (isListening) recognition.start();
+                    }, 100);
+                }
+            };
+
+            function processCommand(command) {
+                command = command.toLowerCase();
+                let response = '';
+                
+                // Check for specific commands
+                if (command.includes('time')) {
+                    const time = new Date().toLocaleTimeString();
+                    response = `The current time is ${time}`;
+                } else if (command.includes('search') && command.includes('on google')) {
+                    const query = command.replace('search', '').replace('on google', '').trim();
+                    response = `Searching Google for "${query}". Here are the results...`;
+                    window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, '_blank');
+                } else if (command.includes('open youtube')) {
+                    response = 'Opening YouTube...';
+                    window.open('https://www.youtube.com', '_blank');
+                } else if (command.includes('tell me a joke')) {
+                    const jokes = [
+                        "Why don't scientists trust atoms? Because they make up everything!",
+                        "Did you hear about the mathematician who's afraid of negative numbers? He'll stop at nothing to avoid them.",
+                        "Why don't skeletons fight each other? They don't have the guts.",
+                        "I'm reading a book about anti-gravity. It's impossible to put down!",
+                        "Did you hear about the claustrophobic astronaut? He just needed a little space."
+                    ];
+                    response = jokes[Math.floor(Math.random() * jokes.length)];
+                } else if (command.includes('pin')) {
+                    waitingForPin = true;
+                    currentPinAttempt = '';
+                    response = `Please speak your 4-digit PIN to continue.`;
+                } else if (command.includes('thank')) {
+                    response = `You're welcome, ${userName}. Is there anything else I can do for you?`;
+                } else if (command.includes('your name')) {
+                    response = `My name is ${assistantName}, your personal AI assistant.`;
+                } else {
+                    response = `I'm not sure how to help with that, ${userName}. You can ask me about the time, search Google, open YouTube, or tell you a joke.`;
+                }
+                
+                addMessage('assistant', assistantName, response);
+                speak(response);
+                
+                // Reset wake word detection after a short delay
+                setTimeout(() => {
+                    waitingForWakeWord = true;
+                }, 3000);
+            }
+
+            function speak(text) {
+                if (synth.speaking) {
+                    synth.cancel();
+                }
+
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.voice = synth.getVoices().find(voice => voice.name.includes('English'));
+                utterance.rate = 0.9;
+                utterance.pitch = 1.1;
+                synth.speak(utterance);
+            }
+
+            function addMessage(sender, senderName, content) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message message-${sender}`;
+                
+                const senderDiv = document.createElement('div');
+                senderDiv.className = 'message-sender';
+                senderDiv.textContent = senderName;
+                
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'message-content';
+                
+                // Add loading dots if it's the assistant and content is empty (for loading state)
+                if (sender === 'assistant' && !content) {
+                    contentDiv.innerHTML = '<div class="loading"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div>';
+                } else {
+                    contentDiv.textContent = content;
+                }
+                
+                messageDiv.appendChild(senderDiv);
+                messageDiv.appendChild(contentDiv);
+                chatMessages.appendChild(messageDiv);
+                
+                // Scroll to bottom
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            function handleTextInput(e) {
+                if (e.key === 'Enter' && textInput.value.trim()) {
+                    const command = textInput.value.trim();
+                    addMessage('user', userName, command);
+                    textInput.value = '';
+                    processCommand(command);
+                }
+            }
+
+            function openSettings() {
+                settingsPanel.classList.add('open');
+                overlay.classList.add('active');
+                document.getElementById('assistantName').value = assistantName;
+                document.getElementById('userName').value = userName;
+                document.getElementById('wakeWord').value = wakeWord;
+                document.getElementById('voicePin').value = voicePin;
+            }
+
+            function closeSettingsPanel() {
+                settingsPanel.classList.remove('open');
+                overlay.classList.remove('active');
+            }
+
+            function saveSettingsHandler() {
+                assistantName = document.getElementById('assistantName').value || 'Jarvis';
+                userName = document.getElementById('userName').value || 'Sir';
+                wakeWord = document.getElementById('wakeWord').value.toLowerCase() || 'jarvis';
+                voicePin = document.getElementById('voicePin').value || '1234';
+                
+                saveSettings();
+                closeSettingsPanel();
+                
+                showNotification('Settings saved successfully');
+                addMessage('assistant', assistantName, `Settings updated. You can call me ${assistantName} and I'll address you as ${userName}.`);
+            }
+
+            function saveSettings() {
+                localStorage.setItem('jarvisSettings', JSON.stringify({
+                    assistantName,
+                    userName,
+                    wakeWord,
+                    voicePin
+                }));
+            }
+
+            function loadSettings() {
+                const savedSettings = localStorage.getItem('jarvisSettings');
+                if (savedSettings) {
+                    const settings = JSON.parse(savedSettings);
+                    assistantName = settings.assistantName || assistantName;
+                    userName = settings.userName || userName;
+                    wakeWord = settings.wakeWord || wakeWord;
+                    voicePin = settings.voicePin || voicePin;
+                }
+            }
+
+            function showNotification(message) {
+                notificationMessage.textContent = message;
+                notification.classList.add('show');
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 3000);
+            }
+
+            // Initialize speech synthesis voices
+            if (speechSynthesis.onvoiceschanged !== undefined) {
+                speechSynthesis.onvoiceschanged = function() {
+                    // Voices loaded
+                };
+            }
+        });
+    </script>
 </body>
 </html>
