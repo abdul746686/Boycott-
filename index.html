@@ -1,102 +1,57 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Multi AI Assistant</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      max-width: 600px;
-      margin: auto;
-      padding: 20px;
-    }
-    textarea, select, button {
-      width: 100%;
-      margin-top: 10px;
-      font-size: 16px;
-    }
-    #response {
-      margin-top: 20px;
-      white-space: pre-wrap;
-      background: #f0f0f0;
-      padding: 10px;
-      border-radius: 5px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Abdul's AI Assistant</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="app.js" defer></script>
 </head>
 <body>
-  <h2>Multi AI Assistant</h2>
-  
-  <label for="model">Choose AI Model:</label>
-  <select id="model">
-    <option value="openai">OpenAI GPT</option>
-    <option value="deepseek">DeepSeek</option>
-    <option value="gemini">Gemini</option>
-  </select>
-  
-  <textarea id="prompt" rows="6" placeholder="Enter your prompt here..."></textarea>
-  <button onclick="askAI()">Ask AI</button>
-  
-  <div id="response"></div>
+    <div class="app-container">
+        <header class="app-header">
+            <h1>Abdul’s AI Assistant</h1>
+            <button id="settings-btn">⚙️ Settings</button>
+        </header>
 
-  <script>
-    const apiKeys = {
-      openai: "sk-XXXXXXX-OpenAIKeyHere",
-      deepseek: "Bearer ds-XXXXXXXXXXXXXXXXX-DeepSeekKeyHere",
-      gemini: "AIzaSyXXXXXX-GeminiAPIKeyHere"
-    };
+        <section id="api-keys-section" class="api-keys-section hidden">
+            <h2>API Keys</h2>
+            <div class="key-input-group">
+                <label for="openai-key">OpenAI API Key:</label>
+                <input type="password" id="openai-key" placeholder="Enter your OpenAI API Key">
+            </div>
+            <div class="key-input-group">
+                <label for="gemini-key">Gemini API Key:</label>
+                <input type="password" id="gemini-key" placeholder="Enter your Gemini API Key">
+            </div>
+            <div class="key-input-group">
+                <label for="mistral-key">Mistral API Key:</label>
+                <input type="password" id="mistral-key" placeholder="Enter your Mistral API Key">
+            </div>
+             <p class="api-note">Your keys are stored securely in your browser's local storage and are never sent anywhere else.</p>
+        </section>
 
-    async function askAI() {
-      const model = document.getElementById("model").value;
-      const prompt = document.getElementById("prompt").value;
-      const resBox = document.getElementById("response");
-      resBox.innerText = "Thinking...";
+        <main id="chat-container" class="chat-container">
+            <div id="chat-messages" class="chat-messages">
+                 </div>
+            <div class="welcome-message">
+                <p>Select a model and enter your API keys in settings to begin.</p>
+            </div>
+        </main>
 
-      if (model === "openai") {
-        const res = await fetch("https://api.openai.com/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + apiKeys.openai
-          },
-          body: JSON.stringify({
-            model: "gpt-3.5-turbo",
-            messages: [{ role: "user", content: prompt }]
-          })
-        });
-        const data = await res.json();
-        resBox.innerText = data.choices?.[0]?.message?.content || "No response.";
-      }
-
-      else if (model === "deepseek") {
-        const res = await fetch("https://api.deepseek.com/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": apiKeys.deepseek
-          },
-          body: JSON.stringify({
-            model: "deepseek-chat",
-            messages: [{ role: "user", content: prompt }]
-          })
-        });
-        const data = await res.json();
-        resBox.innerText = data.choices?.[0]?.message?.content || "No response.";
-      }
-
-      else if (model === "gemini") {
-        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKeys.gemini}`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }]
-          })
-        });
-        const data = await res.json();
-        resBox.innerText = data.candidates?.[0]?.content?.parts?.[0]?.text || "No response.";
-      }
-    }
-  </script>
+        <footer class="chat-input-area">
+            <div class="input-wrapper">
+                <select id="model-selector" class="model-selector">
+                    <option value="openai">OpenAI (gpt-3.5-turbo)</option>
+                    <option value="gemini">Google Gemini (gemini-pro)</option>
+                    <option value="mistral">Mistral (mistral-tiny)</option>
+                </select>
+                <form id="chat-form" class="chat-form">
+                    <input type="text" id="user-input" placeholder="Type your message here..." autocomplete="off">
+                    <button type="submit" id="send-btn">Send</button>
+                </form>
+            </div>
+        </footer>
+    </div>
 </body>
 </html>
