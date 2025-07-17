@@ -1,649 +1,102 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Assist - AI Assistant</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --primary: #4285f4;
-            --secondary: #34a853;
-            --accent: #ea4335;
-            --dark-bg: #121212;
-            --dark-card: #1e1e1e;
-            --dark-text: #e1e1e1;
-            --light-bg: #f5f5f5;
-            --light-card: #ffffff;
-            --light-text: #333333;
-            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Roboto', sans-serif;
-            transition: background-color 0.3s, color 0.3s;
-        }
-
-        body {
-            background-color: var(--light-bg);
-            color: var(--light-text);
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        body.dark-mode {
-            background-color: var(--dark-bg);
-            color: var(--dark-text);
-        }
-
-        /* Splash Screen */
-        .splash-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            color: white;
-        }
-
-        .splash-logo {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-
-        .splash-text {
-            font-size: 1.5rem;
-            margin-bottom: 2rem;
-            text-align: center;
-        }
-
-        .powered-by {
-            position: absolute;
-            bottom: 2rem;
-            font-size: 0.9rem;
-            opacity: 0.8;
-        }
-
-        /* Main App Container */
-        .app-container {
-            display: none;
-            flex: 1;
-            flex-direction: column;
-            height: 100%;
-        }
-
-        /* Header */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem;
-            background-color: var(--primary);
-            color: white;
-            box-shadow: var(--shadow);
-            z-index: 100;
-        }
-
-        .header.dark-mode {
-            background-color: var(--dark-card);
-        }
-
-        .app-title {
-            font-size: 1.5rem;
-            font-weight: 500;
-        }
-
-        .theme-toggle {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.2rem;
-            cursor: pointer;
-        }
-
-        /* Main Content */
-        .main-content {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-        }
-
-        /* Sidebar */
-        .sidebar {
-            width: 250px;
-            background-color: var(--light-card);
-            border-right: 1px solid #e0e0e0;
-            padding: 1rem;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .sidebar.dark-mode {
-            background-color: var(--dark-card);
-            border-right: 1px solid #333;
-        }
-
-        .tools-title {
-            font-size: 1rem;
-            font-weight: 500;
-            margin-bottom: 1rem;
-            color: var(--primary);
-        }
-
-        .tool-item {
-            padding: 0.75rem;
-            margin-bottom: 0.5rem;
-            border-radius: 8px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-        }
-
-        .tool-item:hover {
-            background-color: rgba(66, 133, 244, 0.1);
-        }
-
-        .tool-item.dark-mode:hover {
-            background-color: rgba(66, 133, 244, 0.2);
-        }
-
-        .tool-icon {
-            margin-right: 0.75rem;
-            font-size: 1.1rem;
-        }
-
-        /* Chat Area */
-        .chat-area {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .chat-messages {
-            flex: 1;
-            padding: 1rem;
-            overflow-y: auto;
-            scroll-behavior: smooth;
-        }
-
-        .message {
-            max-width: 80%;
-            margin-bottom: 1rem;
-            padding: 0.75rem 1rem;
-            border-radius: 12px;
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .user-message {
-            background-color: var(--primary);
-            color: white;
-            margin-left: auto;
-            border-bottom-right-radius: 4px;
-        }
-
-        .assistant-message {
-            background-color: var(--light-card);
-            margin-right: auto;
-            border-bottom-left-radius: 4px;
-            box-shadow: var(--shadow);
-        }
-
-        .assistant-message.dark-mode {
-            background-color: var(--dark-card);
-        }
-
-        .message-time {
-            font-size: 0.7rem;
-            opacity: 0.7;
-            margin-top: 0.5rem;
-            text-align: right;
-        }
-
-        .typing-indicator {
-            display: inline-flex;
-            align-items: center;
-        }
-
-        .typing-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background-color: var(--light-text);
-            margin-right: 4px;
-            animation: typingAnimation 1.4s infinite both;
-        }
-
-        .typing-dot.dark-mode {
-            background-color: var(--dark-text);
-        }
-
-        @keyframes typingAnimation {
-            0%, 60%, 100% { transform: translateY(0); }
-            30% { transform: translateY(-5px); }
-        }
-
-        .message-actions {
-            display: flex;
-            justify-content: flex-end;
-            margin-top: 0.5rem;
-        }
-
-        .action-btn {
-            background: none;
-            border: none;
-            color: var(--light-text);
-            font-size: 0.8rem;
-            margin-left: 0.5rem;
-            cursor: pointer;
-        }
-
-        .action-btn.dark-mode {
-            color: var(--dark-text);
-        }
-
-        /* Input Area */
-        .input-area {
-            padding: 1rem;
-            border-top: 1px solid #e0e0e0;
-            background-color: var(--light-card);
-            display: flex;
-            align-items: center;
-        }
-
-        .input-area.dark-mode {
-            background-color: var(--dark-card);
-            border-top: 1px solid #333;
-        }
-
-        .message-input {
-            flex: 1;
-            padding: 0.75rem 1rem;
-            border-radius: 24px;
-            border: 1px solid #e0e0e0;
-            outline: none;
-            font-size: 1rem;
-            background-color: var(--light-card);
-            color: var(--light-text);
-        }
-
-        .message-input.dark-mode {
-            background-color: var(--dark-card);
-            border-color: #444;
-            color: var(--dark-text);
-        }
-
-        .input-buttons {
-            display: flex;
-            margin-left: 0.5rem;
-        }
-
-        .input-btn {
-            background: none;
-            border: none;
-            font-size: 1.2rem;
-            color: var(--primary);
-            margin-left: 0.5rem;
-            cursor: pointer;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .input-btn:hover {
-            background-color: rgba(66, 133, 244, 0.1);
-        }
-
-        .input-btn.dark-mode:hover {
-            background-color: rgba(66, 133, 244, 0.2);
-        }
-
-        .voice-btn.listening {
-            animation: pulse 1.5s infinite;
-            color: var(--accent);
-        }
-
-        /* FAB */
-        .fab {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
-            background-color: var(--primary);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            cursor: pointer;
-            z-index: 10;
-        }
-
-        /* Tool Windows */
-        .tool-window {
-            position: fixed;
-            bottom: 5rem;
-            right: 2rem;
-            width: 300px;
-            max-height: 400px;
-            background-color: var(--light-card);
-            border-radius: 12px;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-            padding: 1rem;
-            z-index: 20;
-            display: none;
-            flex-direction: column;
-        }
-
-        .tool-window.dark-mode {
-            background-color: var(--dark-card);
-        }
-
-        .tool-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-
-        .tool-title {
-            font-weight: 500;
-        }
-
-        .close-tool {
-            background: none;
-            border: none;
-            font-size: 1.2rem;
-            cursor: pointer;
-            color: var(--light-text);
-        }
-
-        .close-tool.dark-mode {
-            color: var(--dark-text);
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 60px;
-                padding: 0.5rem;
-            }
-
-            .tool-item span {
-                display: none;
-            }
-
-            .tool-icon {
-                margin-right: 0;
-                font-size: 1.3rem;
-            }
-
-            .message {
-                max-width: 90%;
-            }
-
-            .fab {
-                bottom: 1rem;
-                right: 1rem;
-            }
-
-            .tool-window {
-                width: 280px;
-                right: 1rem;
-            }
-        }
-    </style>
+  <title>Multi AI Assistant</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 600px;
+      margin: auto;
+      padding: 20px;
+    }
+    textarea, select, button {
+      width: 100%;
+      margin-top: 10px;
+      font-size: 16px;
+    }
+    #response {
+      margin-top: 20px;
+      white-space: pre-wrap;
+      background: #f0f0f0;
+      padding: 10px;
+      border-radius: 5px;
+    }
+  </style>
 </head>
 <body>
-    <!-- Splash Screen -->
-    <div class="splash-screen" id="splashScreen">
-        <div class="splash-logo">
-            <i class="fas fa-robot"></i>
-        </div>
-        <div class="splash-text">Initializing Smart Assist</div>
-        <div class="powered-by">Powered by Abdul Rahman</div>
-    </div>
+  <h2>Multi AI Assistant</h2>
+  
+  <label for="model">Choose AI Model:</label>
+  <select id="model">
+    <option value="openai">OpenAI GPT</option>
+    <option value="deepseek">DeepSeek</option>
+    <option value="gemini">Gemini</option>
+  </select>
+  
+  <textarea id="prompt" rows="6" placeholder="Enter your prompt here..."></textarea>
+  <button onclick="askAI()">Ask AI</button>
+  
+  <div id="response"></div>
 
-    <!-- Main App Container -->
-    <div class="app-container" id="appContainer">
-        <!-- Header -->
-        <header class="header" id="header">
-            <div class="app-title">Smart Assist</div>
-            <button class="theme-toggle" id="themeToggle">
-                <i class="fas fa-moon"></i>
-            </button>
-        </header>
+  <script>
+    const apiKeys = {
+      openai: "sk-XXXXXXX-OpenAIKeyHere",
+      deepseek: "Bearer ds-XXXXXXXXXXXXXXXXX-DeepSeekKeyHere",
+      gemini: "AIzaSyXXXXXX-GeminiAPIKeyHere"
+    };
 
-        <!-- Main Content -->
-        <div class="main-content">
-            <!-- Sidebar -->
-            <div class="sidebar" id="sidebar">
-                <div class="tools-title">AI Tools</div>
-                <div class="tool-item" data-tool="chat">
-                    <i class="fas fa-comment tool-icon"></i>
-                    <span>Chat Assistant</span>
-                </div>
-                <div class="tool-item" data-tool="code">
-                    <i class="fas fa-code tool-icon"></i>
-                    <span>Code Generator</span>
-                </div>
-                <div class="tool-item" data-tool="translate">
-                    <i class="fas fa-language tool-icon"></i>
-                    <span>Translator</span>
-                </div>
-                <div class="tool-item" data-tool="math">
-                    <i class="fas fa-calculator tool-icon"></i>
-                    <span>Math Solver</span>
-                </div>
-                <div class="tool-item" data-tool="quran">
-                    <i class="fas fa-book-quran tool-icon"></i>
-                    <span>Quran Search</span>
-                </div>
-                <div class="tool-item" data-tool="dictionary">
-                    <i class="fas fa-book tool-icon"></i>
-                    <span>Dictionary</span>
-                </div>
-                <div class="tool-item" data-tool="ocr">
-                    <i class="fas fa-image tool-icon"></i>
-                    <span>Image to Text</span>
-                </div>
-                <div class="tool-item" data-tool="summarize">
-                    <i class="fas fa-file-alt tool-icon"></i>
-                    <span>Document Summarizer</span>
-                </div>
-            </div>
+    async function askAI() {
+      const model = document.getElementById("model").value;
+      const prompt = document.getElementById("prompt").value;
+      const resBox = document.getElementById("response");
+      resBox.innerText = "Thinking...";
 
-            <!-- Chat Area -->
-            <div class="chat-area">
-                <div class="chat-messages" id="chatMessages">
-                    <!-- Messages will appear here -->
-                </div>
-                <div class="input-area" id="inputArea">
-                    <input type="text" class="message-input" id="messageInput" placeholder="Type your message...">
-                    <div class="input-buttons">
-                        <button class="input-btn" id="imageBtn">
-                            <i class="fas fa-image"></i>
-                        </button>
-                        <button class="input-btn" id="fileBtn">
-                            <i class="fas fa-paperclip"></i>
-                        </button>
-                        <button class="input-btn voice-btn" id="voiceBtn">
-                            <i class="fas fa-microphone"></i>
-                        </button>
-                        <button class="input-btn" id="sendBtn">
-                            <i class="fas fa-paper-plane"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
+      if (model === "openai") {
+        const res = await fetch("https://api.openai.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + apiKeys.openai
+          },
+          body: JSON.stringify({
+            model: "gpt-3.5-turbo",
+            messages: [{ role: "user", content: prompt }]
+          })
+        });
+        const data = await res.json();
+        resBox.innerText = data.choices?.[0]?.message?.content || "No response.";
+      }
 
-        <!-- FAB -->
-        <div class="fab" id="fab">
-            <i class="fas fa-plus"></i>
-        </div>
+      else if (model === "deepseek") {
+        const res = await fetch("https://api.deepseek.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": apiKeys.deepseek
+          },
+          body: JSON.stringify({
+            model: "deepseek-chat",
+            messages: [{ role: "user", content: prompt }]
+          })
+        });
+        const data = await res.json();
+        resBox.innerText = data.choices?.[0]?.message?.content || "No response.";
+      }
 
-        <!-- Tool Windows -->
-        <div class="tool-window" id="toolWindow">
-            <div class="tool-header">
-                <div class="tool-title" id="toolTitle">Tool</div>
-                <button class="close-tool" id="closeTool">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="tool-content" id="toolContent">
-                <!-- Tool content will be loaded here -->
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // API Configuration
-        const API_KEYS = {
-            OPENAI: 'sk-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
-            GOOGLE_TTS: 'AIzaSyXXXXXXXXXXXX',
-            WHISPER: 'YOUR_WHISPER_API_KEY',
-            FIREBASE: {
-                apiKey: "YOUR_FIREBASE_API_KEY",
-                authDomain: "YOUR_FIREBASE_AUTH_DOMAIN",
-                projectId: "YOUR_FIREBASE_PROJECT_ID",
-                storageBucket: "YOUR_FIREBASE_STORAGE_BUCKET",
-                messagingSenderId: "YOUR_FIREBASE_SENDER_ID",
-                appId: "YOUR_FIREBASE_APP_ID"
-            },
-            ELEVENLABS: 'YOUR_ELEVENLABS_API_KEY'
-        };
-
-        // DOM Elements
-        const splashScreen = document.getElementById('splashScreen');
-        const appContainer = document.getElementById('appContainer');
-        const themeToggle = document.getElementById('themeToggle');
-        const header = document.getElementById('header');
-        const sidebar = document.getElementById('sidebar');
-        const chatMessages = document.getElementById('chatMessages');
-        const messageInput = document.getElementById('messageInput');
-        const sendBtn = document.getElementById('sendBtn');
-        const voiceBtn = document.getElementById('voiceBtn');
-        const imageBtn = document.getElementById('imageBtn');
-        const fileBtn = document.getElementById('fileBtn');
-        const fab = document.getElementById('fab');
-        const toolWindow = document.getElementById('toolWindow');
-        const toolTitle = document.getElementById('toolTitle');
-        const toolContent = document.getElementById('toolContent');
-        const closeTool = document.getElementById('closeTool');
-        const toolItems = document.querySelectorAll('.tool-item');
-
-        // App State
-        let isDarkMode = false;
-        let isListening = false;
-        let currentTool = 'chat';
-        let chatHistory = [];
-        const MAX_OFFLINE_MESSAGES = 20;
-
-        // Initialize the app
-        function initApp() {
-            // Check for saved theme preference
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme === 'dark') {
-                toggleTheme();
-            }
-
-            // Check for saved chat history
-            const savedChat = localStorage.getItem('chatHistory');
-            if (savedChat) {
-                chatHistory = JSON.parse(savedChat);
-                renderChatHistory();
-            }
-
-            // Show welcome message if no history exists
-            if (chatHistory.length === 0) {
-                setTimeout(() => {
-                    addMessage("Hello! I'm Smart Assist. How can I help you today? 😊", false);
-                }, 500);
-            }
-
-            // Initialize Firebase (you would need to add the Firebase SDK)
-            // firebase.initializeApp(API_KEYS.FIREBASE);
-        }
-
-        // Toggle dark/light theme
-        function toggleTheme() {
-            isDarkMode = !isDarkMode;
-            document.body.classList.toggle('dark-mode');
-            header.classList.toggle('dark-mode');
-            sidebar.classList.toggle('dark-mode');
-            toolWindow.classList.toggle('dark-mode');
-            
-            // Update all elements with dark-mode class
-            document.querySelectorAll('.assistant-message, .input-area, .message-input, .input-btn, .close-tool, .typing-dot, .action-btn')
-                .forEach(el => el.classList.toggle('dark-mode'));
-            
-            // Update theme toggle icon
-            themeToggle.innerHTML = isDarkMode ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
-            
-            // Save theme preference
-            localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
-        }
-
-        // Add message to chat
-        function addMessage(text, isUser = true) {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${isUser ? 'user-message' : 'assistant-message'}`;
-            
-            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            
-            // Format message content
-            let messageContent = text;
-            if (!isUser) {
-                // Format AI responses with markdown support
-                messageContent = formatResponse(text);
-            }
-            
-            messageDiv.innerHTML = `
-                <div>${messageContent}</div>
-                <div class="message-time">${time}</div>
-                ${!isUser ? `
-                <div class="message-actions">
-                    <button class="action-btn copy-btn" data-text="${encodeURIComponent(text)}">
-                        <i class="fas fa-copy"></i> Copy
-                    </button>
-                    <button class="action-btn download-btn" data-text="${encodeURIComponent(text)}">
-                        <i class="fas fa-download"></i> Download
-                    </button>
-                </div>
-                ` : ''}
-            `;
-            
-            chatMessages.appendChild(messageDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-            
-            // Add to chat 
+      else if (model === "gemini") {
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKeys.gemini}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }]
+          })
+        });
+        const data = await res.json();
+        resBox.innerText = data.candidates?.[0]?.content?.parts?.[0]?.text || "No response.";
+      }
+    }
+  </script>
+</body>
+</html>
