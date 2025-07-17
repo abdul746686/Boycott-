@@ -3,40 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Boycott Alert</title>
+    <title>Jarvis AI Assistant</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1>Boycott Alert</h1>
+        <header class="header">
+            <h1>Jarvis AI</h1>
         </header>
-        
-        <main>
-            <div class="status-box">
-                <p id="status">Status: Stopped</p>
-                <p id="permission">Microphone Permission: Not Granted</p>
+
+        <main class="main-content">
+            <div class="assistant-display">
+                <div class="assistant-icon"></div>
+                <div class="waveform"></div>
             </div>
-            
-            <div class="controls">
-                <button id="startBtn" class="btn">Start Listening</button>
-                <button id="stopBtn" class="btn" disabled>Stop Listening</button>
-                <button id="testBtn" class="btn test-btn">Test Alert</button>
+
+            <div class="chat-display" id="chat-display">
+                <div class="message assistant-message">
+                    <p>Hello! I'm your personal AI assistant. Say "Jarvis" to wake me up.</p>
+                </div>
             </div>
-            
-            <div id="alertBox" class="alert-box hidden">
-                <h2>BOYCOTT ALERT!</h2>
-                <p id="detectedBrand"></p>
-                <button id="closeAlert" class="btn">Close</button>
+
+            <div class="input-area">
+                <button id="mic-toggle-btn" class="mic-button">
+                    <img src="https://img.icons8.com/ios-filled/50/ffffff/microphone.png" alt="Mic Icon">
+                </button>
+                <input type="text" id="text-input" placeholder="Type a command or speak...">
+                <button id="send-button" class="send-button">Send</button>
             </div>
         </main>
-        
-        <footer>
-            <p>Powered by Abdul Rahman</p>
-        </footer>
+
+        <div class="settings-panel" id="settings-panel">
+            <h2>Settings</h2>
+            <div class="setting-item">
+                <label for="assistant-name">Assistant Name:</label>
+                <input type="text" id="assistant-name" value="Jarvis">
+            </div>
+            <div class="setting-item">
+                <label for="wake-word">Wake Word:</label>
+                <input type="text" id="wake-word" value="Jarvis">
+            </div>
+            <div class="setting-item">
+                <label for="voice-pin">Voice PIN (Optional):</label>
+                <input type="password" id="voice-pin" placeholder="Set your PIN">
+            </div>
+            <button id="save-settings-btn">Save Settings</button>
+            <button class="close-settings" id="close-settings-btn">&times;</button>
+        </div>
+
+        <button class="settings-opener" id="open-settings-btn">⚙️</button>
+
+        <div class="notification-area" id="notification-area"></div>
     </div>
 
-    <script src="keywords.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
