@@ -1,1187 +1,189 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Assist - AI Assistant</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --primary: #4285f4;
-            --secondary: #34a853;
-            --accent: #ea4335;
-            --dark-bg: #121212;
-            --dark-card: #1e1e1e;
-            --dark-text: #e1e1e1;
-            --light-bg: #f5f5f5;
-            --light-card: #ffffff;
-            --light-text: #333333;
-            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Roboto', sans-serif;
-            transition: background-color 0.3s, color 0.3s;
-        }
-
-        body {
-            background-color: var(--light-bg);
-            color: var(--light-text);
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        body.dark-mode {
-            background-color: var(--dark-bg);
-            color: var(--dark-text);
-        }
-
-        /* Splash Screen */
-        .splash-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            color: white;
-        }
-
-        .splash-logo {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-
-        .splash-text {
-            font-size: 1.5rem;
-            margin-bottom: 2rem;
-            text-align: center;
-        }
-
-        .powered-by {
-            position: absolute;
-            bottom: 2rem;
-            font-size: 0.9rem;
-            opacity: 0.8;
-        }
-
-        /* Main App Container */
-        .app-container {
-            display: none;
-            flex: 1;
-            flex-direction: column;
-            height: 100%;
-        }
-
-        /* Header */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem;
-            background-color: var(--primary);
-            color: white;
-            box-shadow: var(--shadow);
-            z-index: 100;
-        }
-
-        .header.dark-mode {
-            background-color: var(--dark-card);
-        }
-
-        .app-title {
-            font-size: 1.5rem;
-            font-weight: 500;
-        }
-
-        .theme-toggle {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.2rem;
-            cursor: pointer;
-        }
-
-        /* Main Content */
-        .main-content {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-        }
-
-        /* Sidebar */
-        .sidebar {
-            width: 250px;
-            background-color: var(--light-card);
-            border-right: 1px solid #e0e0e0;
-            padding: 1rem;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .sidebar.dark-mode {
-            background-color: var(--dark-card);
-            border-right: 1px solid #333;
-        }
-
-        .tools-title {
-            font-size: 1rem;
-            font-weight: 500;
-            margin-bottom: 1rem;
-            color: var(--primary);
-        }
-
-        .tool-item {
-            padding: 0.75rem;
-            margin-bottom: 0.5rem;
-            border-radius: 8px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-        }
-
-        .tool-item:hover {
-            background-color: rgba(66, 133, 244, 0.1);
-        }
-
-        .tool-item.dark-mode:hover {
-            background-color: rgba(66, 133, 244, 0.2);
-        }
-
-        .tool-icon {
-            margin-right: 0.75rem;
-            font-size: 1.1rem;
-        }
-
-        /* Chat Area */
-        .chat-area {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .chat-messages {
-            flex: 1;
-            padding: 1rem;
-            overflow-y: auto;
-            scroll-behavior: smooth;
-        }
-
-        .message {
-            max-width: 80%;
-            margin-bottom: 1rem;
-            padding: 0.75rem 1rem;
-            border-radius: 12px;
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .user-message {
-            background-color: var(--primary);
-            color: white;
-            margin-left: auto;
-            border-bottom-right-radius: 4px;
-        }
-
-        .assistant-message {
-            background-color: var(--light-card);
-            margin-right: auto;
-            border-bottom-left-radius: 4px;
-            box-shadow: var(--shadow);
-        }
-
-        .assistant-message.dark-mode {
-            background-color: var(--dark-card);
-        }
-
-        .message-time {
-            font-size: 0.7rem;
-            opacity: 0.7;
-            margin-top: 0.5rem;
-            text-align: right;
-        }
-
-        .typing-indicator {
-            display: inline-flex;
-            align-items: center;
-        }
-
-        .typing-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background-color: var(--light-text);
-            margin-right: 4px;
-            animation: typingAnimation 1.4s infinite both;
-        }
-
-        .typing-dot.dark-mode {
-            background-color: var(--dark-text);
-        }
-
-        @keyframes typingAnimation {
-            0%, 60%, 100% { transform: translateY(0); }
-            30% { transform: translateY(-5px); }
-        }
-
-        .message-actions {
-            display: flex;
-            justify-content: flex-end;
-            margin-top: 0.5rem;
-        }
-
-        .action-btn {
-            background: none;
-            border: none;
-            color: var(--light-text);
-            font-size: 0.8rem;
-            margin-left: 0.5rem;
-            cursor: pointer;
-        }
-
-        .action-btn.dark-mode {
-            color: var(--dark-text);
-        }
-
-        /* Input Area */
-        .input-area {
-            padding: 1rem;
-            border-top: 1px solid #e0e0e0;
-            background-color: var(--light-card);
-            display: flex;
-            align-items: center;
-        }
-
-        .input-area.dark-mode {
-            background-color: var(--dark-card);
-            border-top: 1px solid #333;
-        }
-
-        .message-input {
-            flex: 1;
-            padding: 0.75rem 1rem;
-            border-radius: 24px;
-            border: 1px solid #e0e0e0;
-            outline: none;
-            font-size: 1rem;
-            background-color: var(--light-card);
-            color: var(--light-text);
-        }
-
-        .message-input.dark-mode {
-            background-color: var(--dark-card);
-            border-color: #444;
-            color: var(--dark-text);
-        }
-
-        .input-buttons {
-            display: flex;
-            margin-left: 0.5rem;
-        }
-
-        .input-btn {
-            background: none;
-            border: none;
-            font-size: 1.2rem;
-            color: var(--primary);
-            margin-left: 0.5rem;
-            cursor: pointer;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .input-btn:hover {
-            background-color: rgba(66, 133, 244, 0.1);
-        }
-
-        .input-btn.dark-mode:hover {
-            background-color: rgba(66, 133, 244, 0.2);
-        }
-
-        .voice-btn.listening {
-            animation: pulse 1.5s infinite;
-            color: var(--accent);
-        }
-
-        /* FAB */
-        .fab {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
-            background-color: var(--primary);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            cursor: pointer;
-            z-index: 10;
-        }
-
-        /* Tool Windows */
-        .tool-window {
-            position: fixed;
-            bottom: 5rem;
-            right: 2rem;
-            width: 300px;
-            max-height: 400px;
-            background-color: var(--light-card);
-            border-radius: 12px;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-            padding: 1rem;
-            z-index: 20;
-            display: none;
-            flex-direction: column;
-        }
-
-        .tool-window.dark-mode {
-            background-color: var(--dark-card);
-        }
-
-        .tool-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-
-        .tool-title {
-            font-weight: 500;
-        }
-
-        .close-tool {
-            background: none;
-            border: none;
-            font-size: 1.2rem;
-            cursor: pointer;
-            color: var(--light-text);
-        }
-
-        .close-tool.dark-mode {
-            color: var(--dark-text);
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 60px;
-                padding: 0.5rem;
-            }
-
-            .tool-item span {
-                display: none;
-            }
-
-            .tool-icon {
-                margin-right: 0;
-                font-size: 1.3rem;
-            }
-
-            .message {
-                max-width: 90%;
-            }
-
-            .fab {
-                bottom: 1rem;
-                right: 1rem;
-            }
-
-            .tool-window {
-                width: 280px;
-                right: 1rem;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Assist - Your Multilingual Voice Assistant</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/favicon.ico">
+  <style>
+    /* Custom CSS will go here */
+    :root {
+      --primary: #6d28d9;
+      --secondary: #4f46e5;
+    }
+    
+    @keyframes wave {
+      0% { transform: scaleY(1); }
+      50% { transform: scaleY(1.5); }
+      100% { transform: scaleY(1); }
+    }
+    
+    .wave-bar {
+      animation: wave 1s infinite ease-in-out;
+    }
+    
+    .chat-container {
+      scrollbar-width: thin;
+      scrollbar-color: var(--primary) transparent;
+    }
+    
+    .dark .chat-container {
+      scrollbar-color: #4b5563 transparent;
+    }
+    
+    .splash-screen {
+      animation: fadeOut 1s ease-in-out 2s forwards;
+    }
+    
+    @keyframes fadeOut {
+      to { opacity: 0; visibility: hidden; }
+    }
+  </style>
 </head>
-<body>
-    <!-- Splash Screen -->
-    <div class="splash-screen" id="splashScreen">
-        <div class="splash-logo">
-            <i class="fas fa-robot"></i>
-        </div>
-        <div class="splash-text">Initializing Smart Assist</div>
-        <div class="powered-by">Powered by Abdul Rahman</div>
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+  <!-- Splash Screen -->
+  <div id="splash" class="splash-screen fixed inset-0 flex items-center justify-center bg-gradient-to-br from-purple-600 to-indigo-700 z-50">
+    <div class="text-center text-white">
+      <div class="flex items-center justify-center mb-4">
+        <i class="fas fa-microphone-alt text-4xl mr-3"></i>
+        <i class="fas fa-brain text-4xl"></i>
+      </div>
+      <h1 class="text-4xl font-bold mb-2">The Assist</h1>
+      <p class="text-xl opacity-80">Your Multilingual Voice Assistant</p>
     </div>
+  </div>
 
-    <!-- Main App Container -->
-    <div class="app-container" id="appContainer">
-        <!-- Header -->
-        <header class="header" id="header">
-            <div class="app-title">Smart Assist</div>
-            <button class="theme-toggle" id="themeToggle">
-                <i class="fas fa-moon"></i>
+  <!-- Main App Container -->
+  <div id="app" class="hidden max-w-4xl mx-auto min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="p-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 sticky top-0 z-10">
+      <div class="flex justify-between items-center">
+        <div class="flex items-center space-x-2">
+          <div class="flex items-center justify-center w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900">
+            <i class="fas fa-microphone-alt text-purple-600 dark:text-purple-300"></i>
+          </div>
+          <div>
+            <h1 class="text-xl font-bold text-gray-800 dark:text-white">The Assist</h1>
+            <p class="text-xs text-gray-500 dark:text-gray-400">Your Multilingual Voice Assistant</p>
+          </div>
+        </div>
+        
+        <div class="flex items-center space-x-4">
+          <!-- Language Switcher -->
+          <div class="relative">
+            <button id="languageBtn" class="flex items-center space-x-1 px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-700 text-sm">
+              <span>English</span>
+              <i class="fas fa-chevron-down text-xs"></i>
             </button>
-        </header>
-
-        <!-- Main Content -->
-        <div class="main-content">
-            <!-- Sidebar -->
-            <div class="sidebar" id="sidebar">
-                <div class="tools-title">AI Tools</div>
-                <div class="tool-item" data-tool="chat">
-                    <i class="fas fa-comment tool-icon"></i>
-                    <span>Chat Assistant</span>
-                </div>
-                <div class="tool-item" data-tool="code">
-                    <i class="fas fa-code tool-icon"></i>
-                    <span>Code Generator</span>
-                </div>
-                <div class="tool-item" data-tool="translate">
-                    <i class="fas fa-language tool-icon"></i>
-                    <span>Translator</span>
-                </div>
-                <div class="tool-item" data-tool="math">
-                    <i class="fas fa-calculator tool-icon"></i>
-                    <span>Math Solver</span>
-                </div>
-                <div class="tool-item" data-tool="quran">
-                    <i class="fas fa-book-quran tool-icon"></i>
-                    <span>Quran Search</span>
-                </div>
-                <div class="tool-item" data-tool="dictionary">
-                    <i class="fas fa-book tool-icon"></i>
-                    <span>Dictionary</span>
-                </div>
-                <div class="tool-item" data-tool="ocr">
-                    <i class="fas fa-image tool-icon"></i>
-                    <span>Image to Text</span>
-                </div>
-                <div class="tool-item" data-tool="summarize">
-                    <i class="fas fa-file-alt tool-icon"></i>
-                    <span>Document Summarizer</span>
-                </div>
+            <div id="languageDropdown" class="hidden absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 rounded-md shadow-lg z-20">
+              <button data-lang="en" class="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">English</button>
+              <button data-lang="hi" class="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">हिंदी</button>
+              <button data-lang="ur" class="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">اردو</button>
             </div>
-
-            <!-- Chat Area -->
-            <div class="chat-area">
-                <div class="chat-messages" id="chatMessages">
-                    <!-- Messages will appear here -->
-                </div>
-                <div class="input-area" id="inputArea">
-                    <input type="text" class="message-input" id="messageInput" placeholder="Type your message...">
-                    <div class="input-buttons">
-                        <button class="input-btn" id="imageBtn">
-                            <i class="fas fa-image"></i>
-                        </button>
-                        <button class="input-btn" id="fileBtn">
-                            <i class="fas fa-paperclip"></i>
-                        </button>
-                        <button class="input-btn voice-btn" id="voiceBtn">
-                            <i class="fas fa-microphone"></i>
-                        </button>
-                        <button class="input-btn" id="sendBtn">
-                            <i class="fas fa-paper-plane"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
+          </div>
+          
+          <!-- Dark Mode Toggle -->
+          <button id="themeToggle" class="p-2 rounded-full bg-gray-100 dark:bg-gray-700">
+            <i class="fas fa-moon dark:hidden"></i>
+            <i class="fas fa-sun hidden dark:block"></i>
+          </button>
         </div>
+      </div>
+    </header>
 
-        <!-- FAB -->
-        <div class="fab" id="fab">
-            <i class="fas fa-plus"></i>
+    <!-- Chat Container -->
+    <main class="flex-1 p-4 overflow-y-auto chat-container">
+      <div id="chatHistory" class="space-y-4">
+        <!-- Messages will appear here -->
+        <div class="chat-message bot">
+          <div class="flex items-start space-x-2">
+            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center">
+              <i class="fas fa-robot text-purple-600 dark:text-purple-300"></i>
+            </div>
+            <div class="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm max-w-xs md:max-w-md lg:max-w-lg">
+              <p class="text-gray-800 dark:text-gray-200">Hello! I'm your multilingual assistant. How can I help you today?</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Just now</p>
+            </div>
+          </div>
         </div>
+      </div>
+      
+      <!-- Voice Feedback -->
+      <div id="voiceFeedback" class="hidden mt-6 mb-4 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+        <div class="flex justify-center space-x-1 h-8 items-end">
+          <div class="wave-bar w-1 bg-purple-500 h-2" style="animation-delay: 0.1s"></div>
+          <div class="wave-bar w-1 bg-purple-500 h-4" style="animation-delay: 0.2s"></div>
+          <div class="wave-bar w-1 bg-purple-500 h-6" style="animation-delay: 0.3s"></div>
+          <div class="wave-bar w-1 bg-purple-500 h-4" style="animation-delay: 0.4s"></div>
+          <div class="wave-bar w-1 bg-purple-500 h-2" style="animation-delay: 0.5s"></div>
+        </div>
+        <p class="text-center text-gray-600 dark:text-gray-300 mt-2">Listening...</p>
+      </div>
+    </main>
 
-        <!-- Tool Windows -->
-        <div class="tool-window" id="toolWindow">
-            <div class="tool-header">
-                <div class="tool-title" id="toolTitle">Tool</div>
-                <button class="close-tool" id="closeTool">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="tool-content" id="toolContent">
-                <!-- Tool content will be loaded here -->
-            </div>
+    <!-- Input Area -->
+    <footer class="p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 sticky bottom-0">
+      <div class="flex items-center space-x-2">
+        <button id="voiceToggle" class="p-2 rounded-full bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300">
+          <i class="fas fa-microphone"></i>
+        </button>
+        
+        <div class="flex-1 relative">
+          <input id="chatInput" type="text" placeholder="Type your message..." 
+                 class="w-full px-4 py-2 rounded-full bg-gray-100 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500">
+          <button id="sendBtn" class="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 text-purple-600 dark:text-purple-300">
+            <i class="fas fa-paper-plane"></i>
+          </button>
         </div>
+        
+        <button id="menuBtn" class="p-2 rounded-full bg-gray-100 dark:bg-gray-700">
+          <i class="fas fa-ellipsis-v"></i>
+        </button>
+      </div>
+      
+      <!-- Menu Dropdown -->
+      <div id="menuDropdown" class="hidden mt-2 p-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+        <button id="clearChat" class="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+          <i class="fas fa-trash mr-2"></i> Clear Chat
+        </button>
+        <button id="exportPDF" class="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+          <i class="fas fa-file-pdf mr-2"></i> Export as PDF
+        </button>
+        <button id="exportTXT" class="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+          <i class="fas fa-file-alt mr-2"></i> Export as TXT
+        </button>
+        <button id="voiceSettings" class="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+          <i class="fas fa-voice mr-2"></i> Voice Settings
+        </button>
+      </div>
+      
+      <!-- Voice Settings Dropdown -->
+      <div id="voiceSettingsDropdown" class="hidden mt-2 p-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+        <h3 class="px-4 py-2 font-medium">Voice Preference</h3>
+        <button data-voice="male" class="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+          <i class="fas fa-male mr-2"></i> Male Voice
+        </button>
+        <button data-voice="female" class="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+          <i class="fas fa-female mr-2"></i> Female Voice
+        </button>
+        <button data-voice="neutral" class="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+          <i class="fas fa-robot mr-2"></i> Neutral Voice
+        </button>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Loading Indicator -->
+  <div id="loadingIndicator" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl text-center">
+      <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500 mx-auto mb-4"></div>
+      <p class="text-gray-800 dark:text-gray-200">Processing your request...</p>
     </div>
+  </div>
 
-    <script>
-        // API Configuration
-        const API_KEYS = {
-            OPENAI: 'sk-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
-            GOOGLE_TTS: 'AIzaSyXXXXXXXXXXXX',
-            WHISPER: 'YOUR_WHISPER_API_KEY',
-            FIREBASE: {
-                apiKey: "YOUR_FIREBASE_API_KEY",
-                authDomain: "YOUR_FIREBASE_AUTH_DOMAIN",
-                projectId: "YOUR_FIREBASE_PROJECT_ID",
-                storageBucket: "YOUR_FIREBASE_STORAGE_BUCKET",
-                messagingSenderId: "YOUR_FIREBASE_SENDER_ID",
-                appId: "YOUR_FIREBASE_APP_ID"
-            },
-            ELEVENLABS: 'YOUR_ELEVENLABS_API_KEY'
-        };
-
-        // DOM Elements
-        const splashScreen = document.getElementById('splashScreen');
-        const appContainer = document.getElementById('appContainer');
-        const themeToggle = document.getElementById('themeToggle');
-        const header = document.getElementById('header');
-        const sidebar = document.getElementById('sidebar');
-        const chatMessages = document.getElementById('chatMessages');
-        const messageInput = document.getElementById('messageInput');
-        const sendBtn = document.getElementById('sendBtn');
-        const voiceBtn = document.getElementById('voiceBtn');
-        const imageBtn = document.getElementById('imageBtn');
-        const fileBtn = document.getElementById('fileBtn');
-        const fab = document.getElementById('fab');
-        const toolWindow = document.getElementById('toolWindow');
-        const toolTitle = document.getElementById('toolTitle');
-        const toolContent = document.getElementById('toolContent');
-        const closeTool = document.getElementById('closeTool');
-        const toolItems = document.querySelectorAll('.tool-item');
-
-        // App State
-        let isDarkMode = false;
-        let isListening = false;
-        let currentTool = 'chat';
-        let chatHistory = [];
-        const MAX_OFFLINE_MESSAGES = 20;
-
-        // Initialize the app
-        function initApp() {
-            // Check for saved theme preference
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme === 'dark') {
-                toggleTheme();
-            }
-
-            // Check for saved chat history
-            const savedChat = localStorage.getItem('chatHistory');
-            if (savedChat) {
-                chatHistory = JSON.parse(savedChat);
-                renderChatHistory();
-            }
-
-            // Show welcome message if no history exists
-            if (chatHistory.length === 0) {
-                setTimeout(() => {
-                    addMessage("Hello! I'm Smart Assist. How can I help you today? 😊", false);
-                }, 500);
-            }
-
-            // Initialize Firebase (you would need to add the Firebase SDK)
-            // firebase.initializeApp(API_KEYS.FIREBASE);
-        }
-
-        // Toggle dark/light theme
-        function toggleTheme() {
-            isDarkMode = !isDarkMode;
-            document.body.classList.toggle('dark-mode');
-            header.classList.toggle('dark-mode');
-            sidebar.classList.toggle('dark-mode');
-            toolWindow.classList.toggle('dark-mode');
-            
-            // Update all elements with dark-mode class
-            document.querySelectorAll('.assistant-message, .input-area, .message-input, .input-btn, .close-tool, .typing-dot, .action-btn')
-                .forEach(el => el.classList.toggle('dark-mode'));
-            
-            // Update theme toggle icon
-            themeToggle.innerHTML = isDarkMode ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
-            
-            // Save theme preference
-            localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
-        }
-
-        // Add message to chat
-        function addMessage(text, isUser = true) {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${isUser ? 'user-message' : 'assistant-message'}`;
-            
-            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            
-            // Format message content
-            let messageContent = text;
-            if (!isUser) {
-                // Format AI responses with markdown support
-                messageContent = formatResponse(text);
-            }
-            
-            messageDiv.innerHTML = `
-                <div>${messageContent}</div>
-                <div class="message-time">${time}</div>
-                ${!isUser ? `
-                <div class="message-actions">
-                    <button class="action-btn copy-btn" data-text="${encodeURIComponent(text)}">
-                        <i class="fas fa-copy"></i> Copy
-                    </button>
-                    <button class="action-btn download-btn" data-text="${encodeURIComponent(text)}">
-                        <i class="fas fa-download"></i> Download
-                    </button>
-                </div>
-                ` : ''}
-            `;
-            
-            chatMessages.appendChild(messageDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-            
-            // Add to chat history
-            chatHistory.push({
-                text,
-                isUser,
-                time: new Date().toISOString()
-            });
-            
-            // Keep only the last MAX_OFFLINE_MESSAGES messages
-            if (chatHistory.length > MAX_OFFLINE_MESSAGES) {
-                chatHistory = chatHistory.slice(-MAX_OFFLINE_MESSAGES);
-            }
-            
-            // Save to localStorage
-            localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
-            
-            // If it's an assistant message, speak it
-            if (!isUser && window.speechSynthesis) {
-                speak(text);
-            }
-        }
-
-        // Format AI response with markdown support
-        function formatResponse(text) {
-            // Simple markdown formatting
-            let formatted = text;
-            
-            // Code blocks
-            formatted = formatted.replace(/```([a-z]*)\n([\s\S]*?)\n```/g, 
-                '<pre><code class="language-$1">$2</code></pre>');
-            
-            // Inline code
-            formatted = formatted.replace(/`([^`]+)`/g, '<code>$1</code>');
-            
-            // Bold
-            formatted = formatted.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-            
-            // Italic
-            formatted = formatted.replace(/\*([^*]+)\*/g, '<em>$1</em>');
-            
-            // Links
-            formatted = formatted.replace(/\[([^\]]+)\]\(([^)]+)\)/g, 
-                '<a href="$2" target="_blank">$1</a>');
-            
-            // Line breaks
-            formatted = formatted.replace(/\n/g, '<br>');
-            
-            return formatted;
-        }
-
-        // Show typing indicator
-        function showTypingIndicator() {
-            const typingDiv = document.createElement('div');
-            typingDiv.className = 'message assistant-message typing-indicator';
-            typingDiv.innerHTML = `
-                <div class="typing">
-                    <span class="typing-dot"></span>
-                    <span class="typing-dot"></span>
-                    <span class="typing-dot"></span>
-                </div>
-                <div class="message-time">${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
-            `;
-            
-            if (isDarkMode) {
-                typingDiv.querySelectorAll('.typing-dot').forEach(dot => {
-                    dot.classList.add('dark-mode');
-                });
-            }
-            
-            chatMessages.appendChild(typingDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-            
-            return typingDiv;
-        }
-
-        // Render chat history
-        function renderChatHistory() {
-            chatMessages.innerHTML = '';
-            chatHistory.forEach(msg => {
-                addMessage(msg.text, msg.isUser);
-            });
-        }
-
-        // Speak text using Web Speech API
-        function speak(text) {
-            if (window.speechSynthesis) {
-                const utterance = new SpeechSynthesisUtterance(text);
-                
-                // Set voice properties
-                utterance.rate = 0.9;
-                utterance.pitch = 1.1;
-                
-                // Try to find a suitable voice
-                const voices = window.speechSynthesis.getVoices();
-                const preferredVoices = ['Microsoft Zira', 'Google US English', 'Samantha'];
-                
-                for (const voiceName of preferredVoices) {
-                    const voice = voices.find(v => v.name.includes(voiceName));
-                    if (voice) {
-                        utterance.voice = voice;
-                        break;
-                    }
-                }
-                
-                window.speechSynthesis.speak(utterance);
-            }
-        }
-
-        // Process user input
-        async function processUserInput(input) {
-            if (!input.trim()) return;
-            
-            addMessage(input, true);
-            messageInput.value = '';
-            
-            const typingIndicator = showTypingIndicator();
-            
-            try {
-                // Here you would normally call your AI API
-                // For demo purposes, we'll simulate a response
-                
-                // Detect language
-                const isHindi = /[\u0900-\u097F]/.test(input);
-                const isUrdu = /[\u0600-\u06FF]/.test(input);
-                
-                // Simulate API call delay
-                await new Promise(resolve => setTimeout(resolve, 1500 + Math.random() * 1000));
-                
-                // Remove typing indicator
-                chatMessages.removeChild(typingIndicator);
-                
-                // Generate response based on input
-                let response = generateResponse(input, isHindi, isUrdu);
-                
-                // Add the response to chat
-                addMessage(response, false);
-                
-            } catch (error) {
-                console.error('Error processing input:', error);
-                chatMessages.removeChild(typingIndicator);
-                addMessage("Sorry, I encountered an error. Please try again.", false);
-            }
-        }
-
-        // Generate a response based on input (simulated)
-        function generateResponse(input, isHindi, isUrdu) {
-            input = input.toLowerCase();
-            
-            // Handle specific commands
-            if (input.includes('time')) {
-                const time = new Date().toLocaleTimeString();
-                return isHindi ? 
-                    `वर्तमान समय ${time} है` : 
-                    isUrdu ? 
-                    `موجودہ وقت ${time} ہے` : 
-                    `The current time is ${time}`;
-            }
-            
-            if (input.includes('date')) {
-                const date = new Date().toLocaleDateString();
-                return isHindi ? 
-                    `आज की तारीख ${date} है` : 
-                    isUrdu ? 
-                    `آج کی تاریخ ${date} ہے` : 
-                    `Today's date is ${date}`;
-            }
-            
-            if (input.includes('weather')) {
-                return isHindi ? 
-                    "मैं वास्तविक समय का मौसम डेटा एक्सेस नहीं कर सकता, कृपया 'मौसम के लिए खोजें [स्थान]' कहें" : 
-                    isUrdu ? 
-                    "میں رئیل ٹائم موسم کا ڈیٹا تک رسائی حاصل نہیں کر سکتا، براہ کرم 'موسم کے لیے تلاش کریں [مقام]' کہیں" : 
-                    "I can't access real-time weather data, please say 'search for weather in [location]'";
-            }
-            
-            if (input.includes('search for') || input.includes('look up')) {
-                const query = input.replace('search for', '').replace('look up', '').trim();
-                if (query) {
-                    setTimeout(() => {
-                        window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, '_blank');
-                    }, 500);
-                    
-                    return isHindi ? 
-                        `${query} के लिए खोज रहा हूँ...` : 
-                        isUrdu ? 
-                        `${query} کے لیے تلاش کر رہا ہوں...` : 
-                        `Searching for ${query}...`;
-                }
-            }
-            
-            if (input.includes('thank')) {
-                return isHindi ? 
-                    "आपका स्वागत है! क्या मैं आपकी किसी और मदद कर सकता हूँ?" : 
-                    isUrdu ? 
-                    "آپ کا شکریہ! کیا میں آپ کی کوئی اور مدد کر سکتا ہوں؟" : 
-                    "You're welcome! Is there anything else I can help you with?";
-            }
-            
-            if (input.includes('hello') || input.includes('hi')) {
-                return isHindi ? 
-                    "नमस्ते! मैं स्मार्ट असिस्ट हूँ। मैं आपकी कैसे मदद कर सकता हूँ?" : 
-                    isUrdu ? 
-                    "ہیلو! میں اسمارٹ اسسسٹ ہوں۔ میں آپ کی کس طرح مدد کر سکتا ہوں؟" : 
-                    "Hello! I'm Smart Assist. How can I help you today?";
-            }
-            
-            if (input.includes('who are you')) {
-                return isHindi ? 
-                    "मैं स्मार्ट असिस्ट हूँ, आपका व्यक्तिगत एआई सहायक। मैं जानकारी, कार्यों और बहुत कुछ के साथ आपकी मदद करने के लिए यहां हूं।" : 
-                    isUrdu ? 
-                    "میں اسمارٹ اسسسٹ ہوں، آپ کا ذاتی AI معاون۔ میں معلومات، کاموں اور بہت کچھ کے ساتھ آپ کی مدد کے لیے یہاں ہوں۔" : 
-                    "I'm Smart Assist, your personal AI assistant. I'm here to help you with information, tasks, and more.";
-            }
-            
-            // Default responses
-            const responses = {
-                english: [
-                    "I'm happy to help with that. Could you provide more details?",
-                    "That's an interesting question. Let me think about it...",
-                    "I can certainly assist you with that. Here's what I know...",
-                    "I'm designed to help with a wide range of topics. What specifically would you like to know?"
-                ],
-                hindi: [
-                    "मैं आपकी उससे संबंधित मदद करने में प्रसन्न हूँ। क्या आप और विवरण दे सकते हैं?",
-                    "यह एक रोचक प्रश्न है। मुझे इसके बारे में सोचने दीजिए...",
-                    "मैं निश्चित रूप से आपकी इससे संबंधित मदद कर सकता हूँ। यहाँ मैं जो जानता हूँ वह है...",
-                    "मैं विभिन्न विषयों में मदद करने के लिए बनाया गया हूँ। आप विशेष रूप से क्या जानना चाहेंगे?"
-                ],
-                urdu: [
-                    "میں آپ کی اس سے متعلق مدد کرنے میں خوش ہوں۔ کیا آپ مزید تفصیلات فراہم کر سکتے ہیں؟",
-                    "یہ ایک دلچسپ سوال ہے۔ مجھے اس کے بارے میں سوچنے دیں...",
-                    "میں یقینی طور پر آپ کی اس سے متعلق مدد کر سکتا ہوں۔ یہاں وہ ہے جو میں جانتا ہوں...",
-                    "میں مختلف موضوعات میں مدد کرنے کے لیے بنایا گیا ہوں۔ آپ خاص طور پر کیا جاننا چاہیں گے؟"
-                ]
-            };
-            
-            const randomIndex = Math.floor(Math.random() * 4);
-            
-            if (isHindi) {
-                return responses.hindi[randomIndex];
-            } else if (isUrdu) {
-                return responses.urdu[randomIndex];
-            } else {
-                return responses.english[randomIndex];
-            }
-        }
-
-        // Initialize voice recognition
-        function initVoiceRecognition() {
-            if (!('webkitSpeechRecognition' in window) {
-                alert("Your browser doesn't support speech recognition. Please use Chrome or Edge.");
-                return;
-            }
-            
-            const recognition = new webkitSpeechRecognition();
-            recognition.continuous = false;
-            recognition.interimResults = true;
-            recognition.lang = 'en-US';
-            
-            recognition.onstart = () => {
-                isListening = true;
-                voiceBtn.classList.add('listening');
-                voiceBtn.innerHTML = '<i class="fas fa-microphone-slash"></i>';
-            };
-            
-            recognition.onresult = (event) => {
-                const transcript = Array.from(event.results)
-                    .map(result => result[0])
-                    .map(result => result.transcript)
-                    .join('');
-                
-                messageInput.value = transcript;
-                
-                if (event.results[0].isFinal) {
-                    recognition.stop();
-                }
-            };
-            
-            recognition.onerror = (event) => {
-                console.error('Speech recognition error', event.error);
-                isListening = false;
-                voiceBtn.classList.remove('listening');
-                voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
-                
-                if (event.error === 'not-allowed') {
-                    alert('Please allow microphone access to use voice input.');
-                }
-            };
-            
-            recognition.onend = () => {
-                isListening = false;
-                voiceBtn.classList.remove('listening');
-                voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
-                
-                if (messageInput.value.trim()) {
-                    processUserInput(messageInput.value);
-                }
-            };
-            
-            return recognition;
-        }
-
-        // Open tool window
-        function openTool(tool) {
-            currentTool = tool;
-            toolWindow.style.display = 'flex';
-            toolTitle.textContent = tool.charAt(0).toUpperCase() + tool.slice(1);
-            
-            // Load tool content
-            switch (tool) {
-                case 'code':
-                    toolContent.innerHTML = `
-                        <div class="tool-section">
-                            <label for="codeLanguage">Language:</label>
-                            <select id="codeLanguage">
-                                <option value="python">Python</option>
-                                <option value="javascript">JavaScript</option>
-                                <option value="html">HTML</option>
-                                <option value="java">Java</option>
-                                <option value="cpp">C++</option>
-                            </select>
-                        </div>
-                        <div class="tool-section">
-                            <label for="codePrompt">Describe what you want to code:</label>
-                            <textarea id="codePrompt" rows="3"></textarea>
-                        </div>
-                        <button class="generate-btn" id="generateCode">Generate Code</button>
-                    `;
-                    break;
-                    
-                case 'translate':
-                    toolContent.innerHTML = `
-                        <div class="tool-section">
-                            <label for="translateFrom">From:</label>
-                            <select id="translateFrom">
-                                <option value="auto">Auto-detect</option>
-                                <option value="en">English</option>
-                                <option value="hi">Hindi</option>
-                                <option value="ur">Urdu</option>
-                            </select>
-                        </div>
-                        <div class="tool-section">
-                            <label for="translateTo">To:</label>
-                            <select id="translateTo">
-                                <option value="en">English</option>
-                                <option value="hi">Hindi</option>
-                                <option value="ur">Urdu</option>
-                            </select>
-                        </div>
-                        <div class="tool-section">
-                            <label for="translateText">Text to translate:</label>
-                            <textarea id="translateText" rows="3"></textarea>
-                        </div>
-                        <button class="generate-btn" id="translateBtn">Translate</button>
-                    `;
-                    break;
-                    
-                case 'math':
-                    toolContent.innerHTML = `
-                        <div class="tool-section">
-                            <label for="mathProblem">Enter math problem:</label>
-                            <input type="text" id="mathProblem" placeholder="e.g., 2+2, solve x^2 + 3x - 4 = 0">
-                        </div>
-                        <button class="generate-btn" id="solveMath">Solve</button>
-                        <div class="math-result" id="mathResult"></div>
-                    `;
-                    break;
-                    
-                case 'quran':
-                    toolContent.innerHTML = `
-                        <div class="tool-section">
-                            <label for="quranSearch">Search Quran (English, Arabic, Urdu):</label>
-                            <input type="text" id="quranSearch" placeholder="Enter surah name, verse number, or keyword">
-                        </div>
-                        <button class="generate-btn" id="searchQuran">Search</button>
-                        <div class="quran-results" id="quranResults"></div>
-                    `;
-                    break;
-                    
-                case 'dictionary':
-                    toolContent.innerHTML = `
-                        <div class="tool-section">
-                            <label for="dictWord">Word:</label>
-                            <input type="text" id="dictWord" placeholder="Enter a word">
-                        </div>
-                        <div class="tool-section">
-                            <label for="dictFrom">From:</label>
-                            <select id="dictFrom">
-                                <option value="en">English</option>
-                                <option value="hi">Hindi</option>
-                                <option value="ur">Urdu</option>
-                            </select>
-                        </div>
-                        <div class="tool-section">
-                            <label for="dictTo">To:</label>
-                            <select id="dictTo">
-                                <option value="en">English</option>
-                                <option value="hi">Hindi</option>
-                                <option value="ur">Urdu</option>
-                            </select>
-                        </div>
-                        <button class="generate-btn" id="lookupWord">Look Up</button>
-                        <div class="dict-result" id="dictResult"></div>
-                    `;
-                    break;
-                    
-                case 'ocr':
-                    toolContent.innerHTML = `
-                        <div class="tool-section">
-                            <label for="imageUpload">Upload Image:</label>
-                            <input type="file" id="imageUpload" accept="image/*">
-                        </div>
-                        <div class="image-preview" id="imagePreview"></div>
-                        <button class="generate-btn" id="extractText" disabled>Extract Text</button>
-                        <div class="ocr-result" id="ocrResult"></div>
-                    `;
-                    break;
-                    
-                case 'summarize':
-                    toolContent.innerHTML = `
-                        <div class="tool-section">
-                            <label for="documentUpload">Upload Document (PDF, DOC, TXT):</label>
-                            <input type="file" id="documentUpload" accept=".pdf,.doc,.docx,.txt">
-                        </div>
-                        <div class="tool-section">
-                            <label for="summaryLength">Summary Length:</label>
-                            <select id="summaryLength">
-                                <option value="short">Short (1-2 sentences)</option>
-                                <option value="medium" selected>Medium (3-5 sentences)</option>
-                                <option value="long">Long (paragraph)</option>
-                            </select>
-                        </div>
-                        <button class="generate-btn" id="summarizeDoc" disabled>Summarize</button>
-                        <div class="summary-result" id="summaryResult"></div>
-                    `;
-                    break;
-                    
-                default:
-                    toolContent.innerHTML = `<p>Tool content will be loaded here.</p>`;
-            }
-            
-            // Add dark mode classes if needed
-            if (isDarkMode) {
-                toolContent.querySelectorAll('select, input, textarea, button').forEach(el => {
-                    el.classList.add('dark-mode');
-                });
-            }
-        }
-
-        // Event Listeners
-        themeToggle.addEventListener('click', toggleTheme);
-        
-        sendBtn.addEventListener('click', () => {
-            processUserInput(messageInput.value);
-        });
-        
-        messageInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                processUserInput(messageInput.value);
-            }
-        });
-        
-        let voiceRecognition;
-        voiceBtn.addEventListener('click', () => {
-            if (!isListening) {
-                voiceRecognition = initVoiceRecognition();
-                voiceRecognition.start();
-            } else {
-                voiceRecognition.stop();
-            }
-        });
-        
-        fab.addEventListener('click', () => {
-            openTool(currentTool);
-        });
-        
-        closeTool.addEventListener('click', () => {
-            toolWindow.style.display = 'none';
-        });
-        
-        toolItems.forEach(item => {
-            item.addEventListener('click', () => {
-                const tool = item.getAttribute('data-tool');
-                currentTool = tool;
-                
-                // Highlight selected tool
-                toolItems.forEach(i => i.classList.remove('active'));
-                item.classList.add('active');
-                
-                // Update chat header
-                document.querySelector('.app-title').textContent = 
-                    tool.charAt(0).toUpperCase() + tool.slice(1) + ' - Smart Assist';
-                
-                // For now, just show a message about the tool
-                addMessage(`You've switched to ${tool} mode. How can I help with ${tool}?`, false);
-            });
-        });
-        
-        // Handle image upload
-        imageBtn.addEventListener('click', () => {
-            document.getElementById('imageUpload').click();
-        });
-        
-        // Handle file upload
-        fileBtn.addEventListener('click', () => {
-            document.getElementById('documentUpload').click();
-        });
-        
-        // Handle click on copy/download buttons in messages
-        chatMessages.addEventListener('click', (e) => {
-            if (e.target.closest('.copy-btn')) {
-                const text = decodeURIComponent(e.target.closest('.copy-btn').getAttribute('data-text'));
-                navigator.clipboard.writeText(text);
-                alert('Copied to clipboard!');
-            }
-            
-            if (e.target.closest('.download-btn')) {
-                const text = decodeURIComponent(e.target.closest('.download-btn').getAttribute('data-text'));
-                const blob = new Blob([text], { type: 'text/plain' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'smart-assist-response.txt';
-                a.click();
-                URL.revokeObjectURL(url);
-            }
-        });
-
-        // Initialize the app after splash screen
-        setTimeout(() => {
-            splashScreen.style.opacity = '0';
-            setTimeout(() => {
-                splashScreen.style.display = 'none';
-                appContainer.style.display = 'flex';
-                initApp();
-            }, 500);
-        }, 2500);
-    </script>
+  <script src="app.js"></script>
 </body>
 </html>
